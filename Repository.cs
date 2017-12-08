@@ -10,19 +10,19 @@ namespace DictionaryHelper
 {
 	class Repository
 	{
-		public IEnumerable<CmsDictionary> GetAllKeys()
+		public List<CmsDictionary> GetAllKeys()
 		{
 			using (var db = ApplicationContext.Current.DatabaseContext.Database)
 			{
-				return db.Query<CmsDictionary>("SELECT * FROM cmsDictionary");
+				return db.Fetch<CmsDictionary>("SELECT * FROM cmsDictionary");
 			}
 		}
 
-		public IEnumerable<CmsLanguageText> GetAllText()
+		public List<CmsLanguageText> GetAllText()
 		{
 			using (var db = ApplicationContext.Current.DatabaseContext.Database)
 			{
-				return db.Query<CmsLanguageText>("SELECT * FROM cmsLanguageText");
+				return db.Fetch<CmsLanguageText>("SELECT * FROM cmsLanguageText");
 			}
 		}
 	}
