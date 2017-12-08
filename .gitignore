@@ -1,0 +1,78 @@
+# Note: VisualStudio gitignore rules may also be relevant
+
+
+#
+# Misc.
+#
+
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+robots.txt
+Desktop.ini
+UmbracoTraceLog.txt
+*.orig
+.sass-cache/
+*.orig
+
+#
+# Other Version Control Directories
+#
+
+.svn
+.hg
+.hgignore
+
+# Visual Studio temp something
+.vs/
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/packages/repositories.config
+
+#
+# Visual Studio
+#
+
+[Dd]ebug/
+[Bb]uild/
+[Rr]elease/
+[Oo]bj/
+[Bb]in/
+
+*.aps
+*.bak
+*.build.csdef
+*.cache
+*.ilk
+*.lib
+*.log
+*.meta
+*.ncb
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.scc
+*.sln.docstates
+*.suo
+*.tlb
+*.tlh
+*.tli
+*.tmp
+*.user
+*.vspscc
+*.[Pp]ublish.xml
+*_i.c
+*_p.c
+.builds
