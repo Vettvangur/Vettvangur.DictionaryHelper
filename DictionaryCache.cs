@@ -37,12 +37,28 @@ namespace DictionaryHelper
 						Culture = language.CultureName
 					};
 
-
 					_cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
 				}
 
 			}
 
+		}
+
+		public static void AddOrUpdate(string key, string culture, string value)
+		{
+			var dictionary = new DictionaryItem()
+			{
+				Key = key,
+				Value = value,
+				Culture = culture
+			};
+
+			_cache.AddOrUpdate(dictionary.Key + "-" + dictionary.Culture, dictionary, (k, oldValue) => dictionary);
+		}
+
+		public static void Remove(string key)
+		{
+			_cache.TryRemove(key, out DictionaryItem item);
 		}
 
 	}
