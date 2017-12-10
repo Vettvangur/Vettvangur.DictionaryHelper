@@ -25,6 +25,7 @@ namespace DictionaryHelper
 		{
 			LocalizationService.SavedDictionaryItem += SavedDictionaryItem;
 			LocalizationService.DeletedDictionaryItem += DeletedDictionaryItem;
+
 			DictionaryCache.Fill();
 		}
 

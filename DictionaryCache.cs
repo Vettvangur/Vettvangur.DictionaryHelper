@@ -34,7 +34,7 @@ namespace DictionaryHelper
 					{
 						Key = key.key,
 						Value = text.value,
-						Culture = language.CultureName
+						Culture = language.CultureInfo.Name
 					};
 
 					_cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
