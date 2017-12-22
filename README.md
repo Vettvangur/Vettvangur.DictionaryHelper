@@ -1,7 +1,5 @@
 # Umbraco DictionaryHelper
 
-This project was specifically created to fix sql issues we had with the core Umbraco dictionary service.
-
 All dictionary items are fetched and inserted into concurrency dictionary cache on start up and will be accessible with an extension on Umbraco helper.
 
 ### Available on Nuget

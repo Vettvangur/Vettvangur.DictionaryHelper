@@ -1,6 +1,8 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Umbraco.Core;
@@ -24,7 +26,7 @@ namespace DictionaryHelper
 		public void OnApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
 		{
 			LocalizationService.SavedDictionaryItem += SavedDictionaryItem;
-			LocalizationService.DeletedDictionaryItem += DeletedDictionaryItem;
+			LocalizationService.DeletingDictionaryItem += DeletingDictionaryItem;
 
 			DictionaryCache.Fill();
 		}
@@ -38,19 +40,41 @@ namespace DictionaryHelper
 
 				foreach (var t in e.Translations)
 				{
-					DictionaryCache.AddOrUpdate(e.ItemKey, t.Value, t.Language.CultureName);
+					DictionaryCache.AddOrUpdate(e.ItemKey, t.Key, t.Value, t.Language.IsoCode);
 				}
 
 			}
 		}
 
-		private void DeletedDictionaryItem(ILocalizationService sv, DeleteEventArgs<IDictionaryItem> args)
+		private void DeletingDictionaryItem(ILocalizationService sv, DeleteEventArgs<IDictionaryItem> args)
 		{
-
 			foreach (var e in args.DeletedEntities)
 			{
-				DictionaryCache.Remove(e.ItemKey);
+
+				foreach (var t in e.Translations)
+				{
+					DictionaryCache.Remove(e.ItemKey + "-" + t.Language.IsoCode);
+				}
+
+				var children = sv.GetDictionaryItemDescendants(e.Key);
+
+				if (children.Any())
+				{
+					foreach (var c in children)
+					{
+						foreach (var t in c.Translations)
+						{
+							DictionaryCache.Remove(c.ItemKey + "-" + t.Language.IsoCode);
+						}
+					}
+				}
+
 			}
 		}
+
+		private static readonly ILog Log =
+				LogManager.GetLogger(
+					MethodBase.GetCurrentMethod().DeclaringType
+				);
 	}
 }

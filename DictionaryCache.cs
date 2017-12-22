@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using DictionaryHelper.Models;
 using Umbraco.Core;
+using log4net;
+using System.Reflection;
 
 namespace DictionaryHelper
 {
@@ -32,6 +34,7 @@ namespace DictionaryHelper
 				{
 					var dictionary = new DictionaryItem()
 					{
+						Id = key.id,
 						Key = key.key,
 						Value = text.value,
 						Culture = language.CultureInfo.Name
@@ -44,10 +47,32 @@ namespace DictionaryHelper
 
 		}
 
-		public static void AddOrUpdate(string key, string culture, string value)
+		public static void AddOrUpdate(string key, Guid Id, string value, string culture = null)
+		{
+			if (culture == null)
+			{
+				var ls = ApplicationContext.Current.Services.LocalizationService;
+
+				var allLanguages = ls.GetAllLanguages();
+
+				foreach (var language in allLanguages)
+				{
+					AddOrUpdateItem(key, Id, value, language.CultureInfo.Name);
+				}
+
+			} else
+			{
+				AddOrUpdateItem(key, Id, value, culture);
+			}
+
+
+		}
+
+		private static void AddOrUpdateItem(string key, Guid id, string value, string culture)
 		{
 			var dictionary = new DictionaryItem()
 			{
+				Id = id,
 				Key = key,
 				Value = value,
 				Culture = culture
@@ -56,10 +81,17 @@ namespace DictionaryHelper
 			_cache.AddOrUpdate(dictionary.Key + "-" + dictionary.Culture, dictionary, (k, oldValue) => dictionary);
 		}
 
+
 		public static void Remove(string key)
 		{
 			_cache.TryRemove(key, out DictionaryItem item);
 		}
+
+		private static readonly ILog Log =
+				LogManager.GetLogger(
+					MethodBase.GetCurrentMethod().DeclaringType
+				);
+
 
 	}
 }
