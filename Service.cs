@@ -12,10 +12,6 @@ namespace DictionaryHelper
 {
 	public static class Service
 	{
-		private static readonly ILog Log =
-				LogManager.GetLogger(
-					MethodBase.GetCurrentMethod().DeclaringType
-				);
 
 		public static IEnumerable<DictionaryItem> GetAll()
 		{

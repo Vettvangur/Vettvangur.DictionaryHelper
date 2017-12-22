@@ -15,7 +15,7 @@ namespace DictionaryHelper
 		/// Returns the dictionary value for the key specified
 		/// </summary>
 		/// <param name="key">Dictionary key</param>
-		/// <param name="defaultValue">Optional: If dictionary item is not found og has empty value then default value will be returned</param>
+		/// <param name="defaultValue">Optional: If dictionary item is not found and has empty value then default value will be returned</param>
 		/// <param name="create">Optional: If key does not exist it will be created. Required default value.</param>
 		public static string DictionaryValue(this UmbracoHelper helper, string key, string defaultValue = null, bool create = false)
 		{
