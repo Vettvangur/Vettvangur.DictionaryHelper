@@ -11,6 +11,10 @@
     <description>Umbraco helper to fetch dictionary items</description>
     <releaseNotes>First public release. All dictionary items are fetched and inserted into concurrency dictionary cache on start up and will be accessible with an extension on Umbraco helper.</releaseNotes>
     <copyright>Copyright 2017</copyright>
+    <language>English</language>
+    <dependencies>
+      <dependency id="UmbracoCms.Core" version="7.0.0" />
+    </dependencies>
     <tags>Umbraco Dictionary</tags>
   </metadata>
 </package>
