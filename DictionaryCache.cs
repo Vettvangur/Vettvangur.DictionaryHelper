@@ -19,9 +19,9 @@ namespace DictionaryHelper
 			var allKeys = repo.GetAllKeys();
 			var allTexts = repo.GetAllText();
 
-			var ds = ApplicationContext.Current.Services.LocalizationService;
+			var ls = ApplicationContext.Current.Services.LocalizationService;
 
-			var allLanguages = ds.GetAllLanguages();
+			var allLanguages = ls.GetAllLanguages();
 
 			foreach (var text in allTexts)
 			{
