@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.5] - 2017-12-22
+
+- Fix: Fix dll in nuget to be in release mode
+
 ## [1.0.4] - 2017-12-22
 
 - Fix: Nuget package release notes updated and few typos
