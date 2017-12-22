@@ -4,7 +4,10 @@ This project was specifically created to fix sql issues we had with the core Umb
 
 All dictionary items are fetched and inserted into concurrency dictionary cache on start up and will be accessible with an extension on Umbraco helper.
 
-### Example of usage with Umbraco helper:
+### Available on Nuget
+[Click here to go to nuget project page](https://www.nuget.org/packages/Vettvangur.DictionaryHelper/)
+
+#### Example of usage with Umbraco helper:
 
 ```
 @using DictionaryHelper;
@@ -15,7 +18,7 @@ All dictionary items are fetched and inserted into concurrency dictionary cache 
 
 ```
 
-### Example of usage with service:
+#### Example of usage with service:
 
 ```
 using DictionaryHelper;
