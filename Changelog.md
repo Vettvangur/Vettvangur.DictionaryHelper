@@ -1,12 +1,16 @@
 # Changelog
 
+## [1.0.4] - 2017-12-22
+
+- Fix: Nuget package release notes updated and few typos
+
 ## [1.0.3] - 2017-12-22
 
 - Feature: Dictionary can be created under specific parent key
 - Feature: Dictionary tree can be created by using for example "root.child.key". This will create 3 dictionary keys.
 - Fix: Delete event, will remove all children from cache correctly
 - Fix: Save event runs only once instead of twice.
-- fix: Culture name not set correctly when adding to cache after save event
+- Fix: Culture name not set correctly when adding to cache after save event
 
 ## [1.0.2] - 2017-12-22
 

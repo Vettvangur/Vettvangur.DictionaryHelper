@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Vettvangur.DictionaryHelper</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <title>Umbraco Dictionary Helper</title>
     <authors>Vettvangur</authors>
     <owners>Vettvangur</owners>
     <projectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Umbraco helper to fetch dictionary items</description>
-    <releaseNotes>First public release. All dictionary items are fetched and inserted into concurrency dictionary cache on start up and will be accessible with an extension on Umbraco helper.</releaseNotes>
+    <releaseNotes>New features to create dictionary items automaticly</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <language>English</language>
     <dependencies>
