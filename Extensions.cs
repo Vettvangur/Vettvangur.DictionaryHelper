@@ -16,7 +16,7 @@ namespace DictionaryHelper
 		/// </summary>
 		/// <param name="key">Dictionary key</param>
 		/// <param name="defaultValue">Optional: If dictionary item is not found and has empty value then default value will be returned</param>
-		/// <param name="create">Optional: If key does not exist it will be created. Required default value.</param>
+		/// <param name="create">Optional: If key does not exist it will be created. Requires default value.</param>
 		public static string DictionaryValue(this UmbracoHelper helper, string key, string defaultValue = null, bool create = false)
 		{
 			var content = helper.UmbracoContext.PublishedContentRequest;
