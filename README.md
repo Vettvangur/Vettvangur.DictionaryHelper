@@ -2,7 +2,7 @@
 
 All dictionary items are fetched and inserted into concurrency dictionary cache on start up and will be accessible with an extension on Umbraco helper.
 
-Added value: Dictionary items can be created automaticly under specific parent key or by using namespacing to create a tree.
+Dictionary items can be created automaticly under specific parent key or by using namespacing to create a tree.
 
 ### Available on Nuget
 [Click here to go to nuget project page](https://www.nuget.org/packages/Vettvangur.DictionaryHelper/)
@@ -46,6 +46,11 @@ Added value: Dictionary items can be created automaticly under specific parent k
 
 ```
 
+"root.child.key" Will be created as:
+
+    - root
+        - child
+            - key
 
 
 ### Example of usage with service:
