@@ -46,9 +46,9 @@ namespace DictionaryHelper
 				key = keys.Last();
 			}
 
-			if (DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.InvariantCultureIgnoreCase))) {
+			if (DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase))) {
 
-				var dict = DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.InvariantCultureIgnoreCase));
+				var dict = DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
 
 				if (!string.IsNullOrEmpty(dict.Value.Value))
 				{
