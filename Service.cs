@@ -1,5 +1,4 @@
 ﻿using DictionaryHelper.Models;
-using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -185,9 +184,5 @@ namespace DictionaryHelper
 			ls.AddOrUpdateDictionaryValue(dict, language, defaultValue);
 		}
 
-		private static readonly ILog Log =
-				LogManager.GetLogger(
-					MethodBase.GetCurrentMethod().DeclaringType
-				);
 	}
 }

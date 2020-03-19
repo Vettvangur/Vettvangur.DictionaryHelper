@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using DictionaryHelper.Models;
 using Umbraco.Core;
-using log4net;
 using System.Reflection;
 
 namespace DictionaryHelper
@@ -86,11 +85,6 @@ namespace DictionaryHelper
 		{
 			_cache.TryRemove(key, out DictionaryItem item);
 		}
-
-		private static readonly ILog Log =
-				LogManager.GetLogger(
-					MethodBase.GetCurrentMethod().DeclaringType
-				);
 
 
 	}
