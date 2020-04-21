@@ -5,7 +5,8 @@ using Umbraco.Core;
 using Umbraco.Core.Events;
 using Umbraco.Core.Models;
 using Umbraco.Core.Services;
-using Umbraco.Core.Components;
+using Umbraco.Core.Composing;
+using Umbraco.Core.Services.Implement;
 
 namespace DictionaryHelper
 {
@@ -17,19 +18,13 @@ namespace DictionaryHelper
         }
     }
 
-    public class Startup : IComponent
+    public class Startup : Umbraco.Core.Composing.IComponent
     {
-        private readonly ILogger _logger;
-
-        public Startup(ILogger logger)
-        {
-            _logger = logger;
-        }
-
         public void Initialize()
         {
             LocalizationService.SavedDictionaryItem += DictionaryItem_Saved;
             LocalizationService.DeletingDictionaryItem += DictionaryItem_Deleted;
+
             DictionaryCache.Fill();
         }
 

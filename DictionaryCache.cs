@@ -7,20 +7,21 @@ using System.Collections.Concurrent;
 using DictionaryHelper.Models;
 using Umbraco.Core;
 using System.Reflection;
+using Umbraco.Core.Services;
 
 namespace DictionaryHelper
 {
 	public static class DictionaryCache
 	{
 		public static ConcurrentDictionary<string, DictionaryItem> _cache = new ConcurrentDictionary<string, DictionaryItem>();
-		public static void Fill()
+        private static ILocalizationService ls = Umbraco.Core.Composing.Current.Services.LocalizationService;
+
+        public static void Fill()
 		{
 			var repo = new Repository();
 
 			var allKeys = repo.GetAllKeys();
 			var allTexts = repo.GetAllText();
-
-			var ls = ApplicationContext.Current.Services.LocalizationService;
 
 			var allLanguages = ls.GetAllLanguages();
 
@@ -50,8 +51,6 @@ namespace DictionaryHelper
 		{
 			if (culture == null)
 			{
-				var ls = ApplicationContext.Current.Services.LocalizationService;
-
 				var allLanguages = ls.GetAllLanguages();
 
 				foreach (var language in allLanguages)

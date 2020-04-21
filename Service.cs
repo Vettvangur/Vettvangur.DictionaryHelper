@@ -13,8 +13,9 @@ namespace DictionaryHelper
 	public static class Service
 	{
 		private static IEnumerable<Umbraco.Core.Models.ILanguage> _allLanguages = null;
+        private static ILocalizationService ls = Umbraco.Core.Composing.Current.Services.LocalizationService;
 
-		public static IEnumerable<DictionaryItem> GetAll()
+        public static IEnumerable<DictionaryItem> GetAll()
 		{
 			return DictionaryCache._cache.Select(x => x.Value);
 		}
@@ -58,8 +59,6 @@ namespace DictionaryHelper
 
 			if (create)
 			{
-				var ls = ApplicationContext.Current.Services.LocalizationService;
-
 				_allLanguages = ls.GetAllLanguages();
 
 				if (keys.Length > 0)
@@ -150,14 +149,12 @@ namespace DictionaryHelper
 
 		}
 
-		private static DictionaryItem CreateDictionaryItem(string key, string defaultValue, Guid? parent, string culture)
+        private static DictionaryItem CreateDictionaryItem(string key, string defaultValue, Guid? parent, string culture)
 		{
 			var language = _allLanguages.FirstOrDefault(x => x.IsoCode == culture);
 
 			if (language != null)
 			{
-				var ls = ApplicationContext.Current.Services.LocalizationService;
-
 				var dict = ls.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
 
 				foreach (var la in _allLanguages)

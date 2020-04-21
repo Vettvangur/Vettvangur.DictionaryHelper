@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NPoco;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ using Umbraco.Core.Persistence;
 namespace DictionaryHelper.Models
 {
 	[TableName("cmsDictionary")]
-	[PrimaryKey("pk", autoIncrement = true)]
+	[PrimaryKey("pk", AutoIncrement = true)]
 	public class CmsDictionary
 	{
 		public int pk { get; set; }
