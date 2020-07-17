@@ -263,7 +263,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="DictionaryHelper.nuspec" />
     <None Include="packages.config" />
+    <None Include="release-build-push.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\AutoMapper.3.3.1\tools\AutoMapper.targets" Condition="Exists('packages\AutoMapper.3.3.1\tools\AutoMapper.targets')" />
