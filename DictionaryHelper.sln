@@ -5,6 +5,16 @@ VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryHelper", "DictionaryHelper.csproj", "{C03E25DA-8C33-4A9E-A2F4-6018D0E73787}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9A7D3DC3-E251-4A8C-A0FB-A34479CBB519}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		.whitesource = .whitesource
+		Changelog.md = Changelog.md
+		DictionaryHelper.nuspec = DictionaryHelper.nuspec
+		README.md = README.md
+		release-build-push.ps1 = release-build-push.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
