@@ -13,17 +13,23 @@ namespace DictionaryHelper
 	{
 		public List<CmsDictionary> GetAllKeys()
 		{
-            using (var db = Current.ScopeProvider.CreateScope(autoComplete: true).Database)
+			using (var scope = Current.ScopeProvider.CreateScope())
 			{
-				return db.Fetch<CmsDictionary>();
+				var data = scope.Database.Fetch<CmsDictionary>();
+				scope.Complete();
+
+				return data;
 			}
 		}
 
 		public List<CmsLanguageText> GetAllText()
 		{
-            using (var db = Current.ScopeProvider.CreateScope(autoComplete: true).Database)
-            {
-				return db.Fetch<CmsLanguageText>();
+			using (var scope = Current.ScopeProvider.CreateScope())
+			{
+				var data = scope.Database.Fetch<CmsLanguageText>();
+				scope.Complete();
+
+				return data;
 			}
 		}
 	}
