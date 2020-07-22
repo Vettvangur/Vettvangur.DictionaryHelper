@@ -2,18 +2,18 @@
 <package >
   <metadata>
     <id>Vettvangur.DictionaryHelperV8</id>
-    <version>2.0.4</version>
+    <version>2.0.5</version>
     <title>Umbraco Dictionary Helper V8</title>
     <authors>Vettvangur</authors>
     <owners>Vettvangur</owners>
     <projectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/V8</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Umbraco helper to fetch dictionary items for Umbraco 8</description>
-    <releaseNotes>autoComplete scope</releaseNotes>
+    <releaseNotes>scope.Complete and umbraco 8.0.0</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <language>English</language>
     <dependencies>
-      <dependency id="UmbracoCms.Web" version="8.0.0" />
+      <dependency id="UmbracoCms.Web" version="[8.1.0,9.0)" />
     </dependencies>
     <tags>Umbraco Dictionary</tags>
   </metadata>
