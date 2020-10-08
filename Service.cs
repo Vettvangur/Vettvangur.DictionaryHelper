@@ -59,27 +59,56 @@ namespace DictionaryHelper
 
 			if (create)
 			{
-				var ls = ApplicationContext.Current.Services.LocalizationService;
-
-				_allLanguages = ls.GetAllLanguages();
-
 				if (keys.Length > 0)
 				{
-					var item = CreateDictionaryTree(keys, defaultValue, culture);
+					var keyExist = true;
 
-					return item;
-				} else
-				{
-					DictionaryItem parentItem = null;
+					foreach (var k in keys)
+                    {
+						if (!KeyExist(k))
+                        {
+							keyExist = false;
 
-					if (!string.IsNullOrEmpty(parentKey))
-					{
-						parentItem = GetDictionaryItem(parentKey);
+						}
+                    }
+
+					if (!keyExist)
+                    {
+						var ls = ApplicationContext.Current.Services.LocalizationService;
+
+						_allLanguages = ls.GetAllLanguages();
+
+						var item = CreateDictionaryTree(keys, defaultValue, culture);
+
+						return item;
 					}
 
-					var item = CreateDictionaryItem(key, defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture);
+					return GetDictionaryItem(keys.Last());
+				} else
+				{
+					var dicKey = GetDictionaryItem(key);
 
-					return item;
+					if (dicKey == null)
+                    {
+						var ls = ApplicationContext.Current.Services.LocalizationService;
+
+						_allLanguages = ls.GetAllLanguages();
+
+						DictionaryItem parentItem = null;
+
+						if (!string.IsNullOrEmpty(parentKey))
+						{
+							parentItem = GetDictionaryItem(parentKey);
+						}
+
+						var item = CreateDictionaryItem(key, defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture);
+
+						return item;
+					} else
+                    {
+						return dicKey;
+                    }
+
 				}
 			} else
 			{
@@ -159,14 +188,20 @@ namespace DictionaryHelper
 			{
 				var ls = ApplicationContext.Current.Services.LocalizationService;
 
-				var dict = ls.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
+				var dict = ls.GetDictionaryItemByKey(key);
 
-				foreach (var la in _allLanguages)
-				{
-					UpdateDictionaryItemCache(ls, dict, la, defaultValue);
+				if (dict != null)
+                {
+					dict = ls.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
+
+					foreach (var la in _allLanguages)
+					{
+						UpdateDictionaryItemCache(ls, dict, la, defaultValue);
+					}
+
+					ls.Save(dict);
 				}
 
-				ls.Save(dict);
 
 				return new DictionaryItem()
 				{
