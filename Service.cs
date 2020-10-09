@@ -2,9 +2,11 @@
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Umbraco.Core;
 using Umbraco.Core.Services;
@@ -19,13 +21,17 @@ namespace DictionaryHelper
 			return DictionaryCache._cache.Select(x => x.Value);
 		}
 
-		public static bool KeyExist(string key, string culture)
+		public static bool KeyExist(string key, string culture = null)
 		{
+			culture = culture ?? Thread.CurrentThread.CurrentCulture.Name;
+
 			return DictionaryCache._cache.Any(x => x.Key == key + "-" + culture);
 		}
 
-		public static DictionaryItem GetDictionaryItem(string key, string culture)
+		public static DictionaryItem GetDictionaryItem(string key, string culture = null)
 		{
+			culture = culture ?? Thread.CurrentThread.CurrentCulture.Name;
+
 			if (KeyExist(key, culture))
 			{
 				return DictionaryCache._cache.FirstOrDefault(x => x.Key == key + "-" + culture).Value;
