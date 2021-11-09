@@ -25,7 +25,7 @@ namespace DictionaryHelper
 		{
 			culture = culture ?? Thread.CurrentThread.CurrentCulture.Name;
 
-			return DictionaryCache._cache.Any(x => x.Key == key + "-" + culture);
+			return DictionaryCache._cache.Any(x => x.Key.InvariantEquals(key + "-" + culture));
 		}
 
 		public static DictionaryItem GetDictionaryItem(string key, string culture = null)
@@ -34,7 +34,7 @@ namespace DictionaryHelper
 
 			if (KeyExist(key, culture))
 			{
-				return DictionaryCache._cache.FirstOrDefault(x => x.Key == key + "-" + culture).Value;
+				return DictionaryCache._cache.FirstOrDefault(x => x.Key.InvariantEquals(key + "-" + culture)).Value;
 			}
 
 			return null;
@@ -51,20 +51,15 @@ namespace DictionaryHelper
 				key = keys.Last();
 			}
 
+			if (DictionaryCache._cache.Any(x => x.Value.Key.InvariantEquals(key) && x.Value.Culture.InvariantEquals(culture)))
+			{
 
-			if (DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase))) {
-
-				var dict = DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+				var dict = DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.InvariantEquals(key) && x.Value.Culture.InvariantEquals(culture));
 
 				if (!string.IsNullOrEmpty(dict.Value.Value))
 				{
 					return dict.Value;
 				}
-
-
-			if (dict != null)
-            {
-				return dict;
 			}
 
 			if (create)
