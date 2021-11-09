@@ -51,7 +51,16 @@ namespace DictionaryHelper
 				key = keys.Last();
 			}
 
-			var dict = GetDictionaryItem(key, culture);
+
+			if (DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase))) {
+
+				var dict = DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+
+				if (!string.IsNullOrEmpty(dict.Value.Value))
+				{
+					return dict.Value;
+				}
+
 
 			if (dict != null)
             {
