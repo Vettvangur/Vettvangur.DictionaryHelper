@@ -40,11 +40,10 @@ namespace DictionaryHelper
 						Culture = language.CultureInfo.Name
 					};
 
-					_cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+					_cache[dictionary.Key + "-" + dictionary.Culture] = dictionary;
 				}
 
 			}
-
 		}
 
 		public static void AddOrUpdate(string key, Guid Id, string value, string culture = null)
@@ -78,9 +77,8 @@ namespace DictionaryHelper
 				Culture = culture
 			};
 
-			_cache.AddOrUpdate(dictionary.Key + "-" + dictionary.Culture, dictionary, (k, oldValue) => dictionary);
+			_cache[dictionary.Key + "-" + dictionary.Culture] = dictionary;
 		}
-
 
 		public static void Remove(string key)
 		{

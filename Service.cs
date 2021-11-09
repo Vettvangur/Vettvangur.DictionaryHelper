@@ -2,34 +2,39 @@
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Umbraco.Core;
 using Umbraco.Core.Services;
 
 namespace DictionaryHelper
 {
-	public static class Service
+	public class Service
 	{
-		private static IEnumerable<Umbraco.Core.Models.ILanguage> _allLanguages = null;
 
 		public static IEnumerable<DictionaryItem> GetAll()
 		{
 			return DictionaryCache._cache.Select(x => x.Value);
 		}
 
-		public static bool KeyExist(string key)
+		public static bool KeyExist(string key, string culture = null)
 		{
-			return DictionaryCache._cache.Any(x => x.Value.Key == key);
+			culture = culture ?? Thread.CurrentThread.CurrentCulture.Name;
+
+			return DictionaryCache._cache.Any(x => x.Key == key + "-" + culture);
 		}
 
-		public static DictionaryItem GetDictionaryItem(string key)
+		public static DictionaryItem GetDictionaryItem(string key, string culture = null)
 		{
-			if (KeyExist(key))
+			culture = culture ?? Thread.CurrentThread.CurrentCulture.Name;
+
+			if (KeyExist(key, culture))
 			{
-				return DictionaryCache._cache.FirstOrDefault(x => x.Value.Key == key).Value;
+				return DictionaryCache._cache.FirstOrDefault(x => x.Key == key + "-" + culture).Value;
 			}
 
 			return null;
@@ -46,6 +51,7 @@ namespace DictionaryHelper
 				key = keys.Last();
 			}
 
+
 			if (DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase))) {
 
 				var dict = DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
@@ -55,32 +61,33 @@ namespace DictionaryHelper
 					return dict.Value;
 				}
 
+
+			if (dict != null)
+            {
+				return dict;
 			}
 
 			if (create)
 			{
-				var ls = ApplicationContext.Current.Services.LocalizationService;
-
-				_allLanguages = ls.GetAllLanguages();
-
 				if (keys.Length > 0)
-				{
+                {
 					var item = CreateDictionaryTree(keys, defaultValue, culture);
 
 					return item;
 				} else
-				{
+                {
 					DictionaryItem parentItem = null;
 
 					if (!string.IsNullOrEmpty(parentKey))
 					{
-						parentItem = GetDictionaryItem(parentKey);
+						parentItem = GetDictionaryItem(parentKey, culture);
 					}
 
 					var item = CreateDictionaryItem(key, defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture);
 
 					return item;
 				}
+
 			} else
 			{
 				return new DictionaryItem()
@@ -113,7 +120,7 @@ namespace DictionaryHelper
 			{
 				var key = keys[i];
 
-				var item = GetDictionaryItem(key);
+				var item = GetDictionaryItem(key, culture);
 
 				if (item == null)
 				{
@@ -123,7 +130,7 @@ namespace DictionaryHelper
 
 					if (i > 0)
 					{
-						parentItem = GetDictionaryItem(keys[i-1]);
+						parentItem = GetDictionaryItem(keys[i-1], culture);
 					}
 
 					if (i == keys.Length - 1)
@@ -131,42 +138,37 @@ namespace DictionaryHelper
 						_defaultValue = defaultValue;
 					}
 
-					var dict = CreateDictionaryItem(key, _defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture);
-
-					if (i == keys.Length - 1)
-					{
-						return dict;
-					}
-
-				} else
-				{
-					if (i == keys.Length - 1)
-					{
-						return item;
-					}
+					CreateDictionaryItem(key, _defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture);
 				}
 			}
 
-			return null;
+			return GetDictionaryItem(keys.Last(), culture);
 
 		}
 
 		private static DictionaryItem CreateDictionaryItem(string key, string defaultValue, Guid? parent, string culture)
 		{
-			var language = _allLanguages.FirstOrDefault(x => x.IsoCode == culture);
+			var ls = ApplicationContext.Current.Services.LocalizationService;
+
+			var languages = ls.GetAllLanguages();
+
+			var language = languages.FirstOrDefault(x => x.IsoCode == culture);
 
 			if (language != null)
 			{
-				var ls = ApplicationContext.Current.Services.LocalizationService;
+				var dict = ls.GetDictionaryItemByKey(key);
 
-				var dict = ls.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
+				if (dict == null)
+                {
+					dict = ls.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
 
-				foreach (var la in _allLanguages)
-				{
-					UpdateDictionaryItemCache(ls, dict, la, defaultValue);
+					foreach (var la in languages)
+					{
+						UpdateDictionaryItemCache(ls, dict, la, defaultValue);
+					}
+
+					ls.Save(dict);
 				}
-
-				ls.Save(dict);
 
 				return new DictionaryItem()
 				{
