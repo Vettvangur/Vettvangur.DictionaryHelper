@@ -22,14 +22,14 @@ namespace DictionaryHelper
 
 		public static bool KeyExist(string key)
 		{
-			return DictionaryCache._cache.Any(x => x.Value.Key == key);
+			return DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 		}
 
 		public static DictionaryItem GetDictionaryItem(string key)
 		{
 			if (KeyExist(key))
 			{
-				return DictionaryCache._cache.FirstOrDefault(x => x.Value.Key == key).Value;
+				return DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase)).Value;
 			}
 
 			return null;
