@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Vettvangur.DictionaryHelperV8</id>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
     <title>Umbraco Dictionary Helper V8</title>
     <authors>Vettvangur</authors>
     <owners>Vettvangur</owners>
     <projectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/V8</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Umbraco helper to fetch dictionary items for Umbraco 8</description>
-    <releaseNotes>scope.Complete and umbraco 8.0.0</releaseNotes>
+    <releaseNotes>Fix ignore case</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <language>English</language>
     <dependencies>
