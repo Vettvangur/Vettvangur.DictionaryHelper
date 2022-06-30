@@ -21,14 +21,14 @@ namespace DictionaryHelper
 		/// <returns>Dictionary string value</returns>
 		public static string DictionaryValue(this UmbracoHelper helper, string key, string defaultValue = null, string parentKey = null, bool create = false)
 		{
-			var content = helper.AssignedContentItem;
+			//var content = helper.AssignedContentItem;
 
 			string culture = Thread.CurrentThread.CurrentCulture.Name;
 
-			if (content != null)
-			{
-				culture = content.GetCultureFromDomains();
-			}
+			//if (content != null)
+			//{
+			//	culture = content.GetCultureFromDomains();
+			//}
 
 			var value = Service.GetValueByKeyAndCulture(key, culture, defaultValue, parentKey, create);
 

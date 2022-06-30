@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.8] - 2022-06.30
+
+- Fix: Stop fetching culture from Node
+
 ## [1.0.5] - 2017-12-22
 
 - Fix: Fix dll in nuget to be in release mode
