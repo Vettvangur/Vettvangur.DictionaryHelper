@@ -1,19 +1,23 @@
-﻿using DictionaryHelper.Models;
+using DictionaryHelper.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Umbraco.Core;
-using Umbraco.Core.Services;
+using Umbraco.Cms.Core.Services;
 
 namespace DictionaryHelper
 {
-	public static class Service
+	public class DictionaryService
 	{
-		private static IEnumerable<Umbraco.Core.Models.ILanguage> _allLanguages = null;
-        private static ILocalizationService ls = Umbraco.Core.Composing.Current.Services.LocalizationService;
+		private static IEnumerable<Umbraco.Cms.Core.Models.ILanguage> _allLanguages = null;
+        private readonly ILocalizationService _localizationService;
+
+        public DictionaryService(ILocalizationService localizationService)
+        {
+            _localizationService = localizationService;
+        }
 
         public static IEnumerable<DictionaryItem> GetAll()
 		{
@@ -35,7 +39,7 @@ namespace DictionaryHelper
 			return null;
 		}
 
-		public static DictionaryItem GetByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
+		public DictionaryItem GetByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
 		{
 			var keys = new string[] {};
 
@@ -59,7 +63,7 @@ namespace DictionaryHelper
 
 			if (create)
 			{
-				_allLanguages = ls.GetAllLanguages();
+				_allLanguages = _localizationService.GetAllLanguages();
 
 				if (keys.Length > 0)
 				{
@@ -89,10 +93,9 @@ namespace DictionaryHelper
 					Value = defaultValue
 				};
 			}
-
 		}
 
-		public static string GetValueByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
+		public string GetValueByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
 		{
 			var dict = GetByKeyAndCulture(key, culture, defaultValue, parentKey, create);
 
@@ -104,7 +107,7 @@ namespace DictionaryHelper
 			return string.Empty;
 		}
 
-		private static DictionaryItem CreateDictionaryTree(string[] keys, string defaultValue, string culture)
+		private DictionaryItem CreateDictionaryTree(string[] keys, string defaultValue, string culture)
 		{
 
 			for (int i = 0; i < keys.Length; i++)
@@ -149,20 +152,20 @@ namespace DictionaryHelper
 
 		}
 
-        private static DictionaryItem CreateDictionaryItem(string key, string defaultValue, Guid? parent, string culture)
+        private DictionaryItem CreateDictionaryItem(string key, string defaultValue, Guid? parent, string culture)
 		{
 			var language = _allLanguages.FirstOrDefault(x => x.IsoCode == culture);
 
 			if (language != null)
 			{
-				var dict = ls.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
+				var dict = _localizationService.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
 
 				foreach (var la in _allLanguages)
 				{
-					UpdateDictionaryItemCache(ls, dict, la, defaultValue);
+					UpdateDictionaryItemCache(_localizationService, dict, la, defaultValue);
 				}
 
-				ls.Save(dict);
+                _localizationService.Save(dict);
 
 				return new DictionaryItem()
 				{
@@ -176,10 +179,13 @@ namespace DictionaryHelper
 			return null;
 		}
 
-		private static void UpdateDictionaryItemCache(ILocalizationService ls, Umbraco.Core.Models.IDictionaryItem dict, Umbraco.Core.Models.ILanguage language, string defaultValue)
+		private void UpdateDictionaryItemCache(
+            ILocalizationService ls,
+            Umbraco.Cms.Core.Models.IDictionaryItem dict,
+            Umbraco.Cms.Core.Models.ILanguage language, 
+            string defaultValue)
 		{
 			ls.AddOrUpdateDictionaryValue(dict, language, defaultValue);
 		}
-
 	}
 }

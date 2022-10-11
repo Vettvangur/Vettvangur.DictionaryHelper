@@ -1,29 +1,33 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using DictionaryHelper.Models;
-using Umbraco.Core;
 using System.Reflection;
-using Umbraco.Core.Services;
+using Umbraco.Cms.Core.Services;
 
 namespace DictionaryHelper
 {
-	public static class DictionaryCache
+	class DictionaryCache
 	{
 		public static ConcurrentDictionary<string, DictionaryItem> _cache = new ConcurrentDictionary<string, DictionaryItem>();
-        private static ILocalizationService ls = Umbraco.Core.Composing.Current.Services.LocalizationService;
 
-        public static void Fill()
+        private readonly ILocalizationService _localizationService;
+        private readonly DictionaryRepository _repository;
+        public DictionaryCache(ILocalizationService localizationService, DictionaryRepository repository)
+        {
+            _localizationService = localizationService;
+            _repository = repository;
+        }
+
+        public void Fill()
 		{
-			var repo = new Repository();
+			var allKeys = _repository.GetAllKeys();
+			var allTexts = _repository.GetAllText();
 
-			var allKeys = repo.GetAllKeys();
-			var allTexts = repo.GetAllText();
-
-			var allLanguages = ls.GetAllLanguages();
+			var allLanguages = _localizationService.GetAllLanguages();
 
 			foreach (var text in allTexts)
 			{
@@ -42,31 +46,27 @@ namespace DictionaryHelper
 
 					_cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
 				}
-
 			}
-
 		}
 
-		public static void AddOrUpdate(string key, Guid Id, string value, string culture = null)
+		public void AddOrUpdate(string key, Guid Id, string value, string culture = null)
 		{
 			if (culture == null)
 			{
-				var allLanguages = ls.GetAllLanguages();
+				var allLanguages = _localizationService.GetAllLanguages();
 
 				foreach (var language in allLanguages)
 				{
 					AddOrUpdateItem(key, Id, value, language.CultureInfo.Name);
 				}
-
-			} else
+			} 
+            else
 			{
 				AddOrUpdateItem(key, Id, value, culture);
 			}
-
-
 		}
 
-		private static void AddOrUpdateItem(string key, Guid id, string value, string culture)
+		private void AddOrUpdateItem(string key, Guid id, string value, string culture)
 		{
 			var dictionary = new DictionaryItem()
 			{
@@ -79,12 +79,9 @@ namespace DictionaryHelper
 			_cache.AddOrUpdate(dictionary.Key + "-" + dictionary.Culture, dictionary, (k, oldValue) => dictionary);
 		}
 
-
-		public static void Remove(string key)
+		public void Remove(string key)
 		{
 			_cache.TryRemove(key, out DictionaryItem item);
 		}
-
-
 	}
 }

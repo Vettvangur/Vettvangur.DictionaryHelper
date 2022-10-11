@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30309.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryHelper", "DictionaryHelper.csproj", "{C03E25DA-8C33-4A9E-A2F4-6018D0E73787}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9A7D3DC3-E251-4A8C-A0FB-A34479CBB519}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		.whitesource = .whitesource
 		Changelog.md = Changelog.md
-		DictionaryHelper.nuspec = DictionaryHelper.nuspec
 		README.md = README.md
 		release-build-push.ps1 = release-build-push.ps1
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryHelper", "Vettvangur.DictionaryHelper\DictionaryHelper.csproj", "{00647B94-0EB4-413A-9623-5E87FC58A40C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +21,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C03E25DA-8C33-4A9E-A2F4-6018D0E73787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C03E25DA-8C33-4A9E-A2F4-6018D0E73787}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C03E25DA-8C33-4A9E-A2F4-6018D0E73787}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C03E25DA-8C33-4A9E-A2F4-6018D0E73787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

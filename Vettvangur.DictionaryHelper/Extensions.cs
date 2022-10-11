@@ -1,11 +1,12 @@
-﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using Umbraco.Web;
+using Umbraco.Cms.Web.Common;
 
 namespace DictionaryHelper
 {
@@ -25,12 +26,13 @@ namespace DictionaryHelper
 
 			string culture = Thread.CurrentThread.CurrentCulture.Name;
 
-			//if (content != null)
-			//{
-			//	culture = content.GetCultureFromDomains();
-			//}
+            //if (content != null)
+            //{
+            //	culture = content.GetCultureFromDomains();
+            //}
 
-			var value = Service.GetValueByKeyAndCulture(key, culture, defaultValue, parentKey, create);
+            var svc = Configuration.Resolver.GetService<DictionaryService>();
+			var value = svc?.GetValueByKeyAndCulture(key, culture, defaultValue, parentKey, create);
 
 			return value;
 		}

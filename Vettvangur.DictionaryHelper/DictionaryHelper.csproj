@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Package properties -->
+    <PackageId>Vettvangur.DictionaryHelperV10</PackageId>
+    <Version>3.0.0</Version>
+    <Title>Vettvangur Dictionary Helper V10</Title>
+    <Authors>Vettvangur</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/V10</PackageProjectUrl>
+    <PackageIcon>images\VV_Logo.png</PackageIcon>
+    <Description>Umbraco helper to fetch dictionary items for Umbraco 8</Description>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <Copyright>Copyright 2022</Copyright>
+    <PackageTags>Umbraco Dictionary</PackageTags>
+
+    <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <!-- Package icon -->
+  <ItemGroup>
+    <None Include="..\VV_Logo.png" Pack="true" PackagePath="images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="10.0.0" />
+     <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.0.0" /> 
+  </ItemGroup>
+
+</Project>
