@@ -53,11 +53,10 @@ namespace DictionaryHelper
         INotificationHandler<DictionaryItemDeletingNotification>
     {
         readonly DictionaryCache _dictionaryCache;
-        readonly DictionaryService _dictionaryService;
-        public NotificationHandlers(DictionaryCache dictionaryCache, DictionaryService dictionaryService)
+        readonly ILocalizationService _localizationService;
+        public NotificationHandlers(DictionaryCache dictionaryCache)
         {
             _dictionaryCache = dictionaryCache;
-            _dictionaryService = dictionaryService;
         }
 
         public void Handle(DictionaryItemDeletingNotification n)
@@ -69,7 +68,7 @@ namespace DictionaryHelper
                     _dictionaryCache.Remove(e.ItemKey + "-" + t.Language.IsoCode);
                 }
 
-                var children = _dictionaryService.GetDictionaryItemDescendants(e.Key);
+                var children = _localizationService.GetDictionaryItemDescendants(e.Key);
 
                 if (children.Any())
                 {
@@ -77,7 +76,7 @@ namespace DictionaryHelper
                     {
                         foreach (var t in c.Translations)
                         {
-                            DictionaryCache.Remove(c.ItemKey + "-" + t.Language.IsoCode);
+                            _dictionaryCache.Remove(c.ItemKey + "-" + t.Language.IsoCode);
                         }
                     }
                 }
