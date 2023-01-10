@@ -1,16 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
 using Umbraco.Cms.Web.Common;
 
 namespace DictionaryHelper
 {
-	public static class Extensions
+    public static class Extensions
 	{
 		/// <summary>
 		/// Returns the dictionary value for the key specified

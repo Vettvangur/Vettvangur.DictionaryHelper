@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using DictionaryHelper.Models;
-using System.Reflection;
+using System.Collections.Concurrent;
 using Umbraco.Cms.Core.Services;
 
 namespace DictionaryHelper
 {
-	class DictionaryCache
+    class DictionaryCache
 	{
 		public static ConcurrentDictionary<string, DictionaryItem> _cache = new ConcurrentDictionary<string, DictionaryItem>();
 

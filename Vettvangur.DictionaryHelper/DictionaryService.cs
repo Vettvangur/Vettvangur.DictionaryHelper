@@ -1,15 +1,9 @@
 using DictionaryHelper.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Cms.Core.Services;
 
 namespace DictionaryHelper
 {
-	public class DictionaryService
+    public class DictionaryService
 	{
 		private static IEnumerable<Umbraco.Cms.Core.Models.ILanguage> _allLanguages = null;
         private readonly ILocalizationService _localizationService;
@@ -19,17 +13,17 @@ namespace DictionaryHelper
             _localizationService = localizationService;
         }
 
-        public static IEnumerable<DictionaryItem> GetAll()
+        public IEnumerable<DictionaryItem> GetAll()
 		{
 			return DictionaryCache._cache.Select(x => x.Value);
 		}
 
-		public static bool KeyExist(string key)
+		public bool KeyExist(string key)
 		{
 			return DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 		}
 
-		public static DictionaryItem GetDictionaryItem(string key)
+		public DictionaryItem GetDictionaryItem(string key)
 		{
 			if (KeyExist(key))
 			{
