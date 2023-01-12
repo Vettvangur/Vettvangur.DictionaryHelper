@@ -9,6 +9,7 @@ namespace DictionaryHelper
         public void Compose(IUmbracoBuilder builder)
         {
             builder.Services.AddScoped<DictionaryService>();
+            builder.Services.AddScoped<Extensions>();
 
         }
     }
