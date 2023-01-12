@@ -25,6 +25,7 @@ namespace DictionaryHelper
             //}
 
             var svc = Configuration.Resolver.GetService<DictionaryService>();
+
 			var value = svc?.GetValueByKeyAndCulture(key, culture, defaultValue, parentKey, create);
 
 			return value;
