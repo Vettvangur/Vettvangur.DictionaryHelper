@@ -23,11 +23,11 @@ namespace DictionaryHelper
                 .AddNotificationHandler<DictionaryItemDeletingNotification, NotificationHandlers>()
             ;
 
-            builder.Components().Append<Startup>();
+            builder.AddNotificationHandler<UmbracoApplicationStartingNotification, Startup>();
         }
     }
 
-    class Startup : IComponent
+    class Startup : INotificationHandler<UmbracoApplicationStartingNotification>
     {
         readonly DictionaryCache _dictionaryCache;
         readonly IServiceProvider _factory;
@@ -38,16 +38,17 @@ namespace DictionaryHelper
             _factory = factory;
         }
 
-        public void Initialize()
+        public void Handle(UmbracoApplicationStartingNotification notification)
         {
-            _dictionaryCache.Fill();
-            Configuration.Resolver = _factory;
+            if (notification.RuntimeLevel >= Umbraco.Cms.Core.RuntimeLevel.Run)
+            {
+                _dictionaryCache.Fill();
+                Configuration.Resolver = _factory;
+            }
         }
-
-        public void Terminate() { }
     }
 
-    class NotificationHandlers : 
+    class NotificationHandlers :
         INotificationHandler<DictionaryItemSavedNotification>,
         INotificationHandler<DictionaryItemDeletingNotification>
     {
@@ -86,7 +87,8 @@ namespace DictionaryHelper
                     }
                 }
 
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to remove dictionary from cache.");
             }
