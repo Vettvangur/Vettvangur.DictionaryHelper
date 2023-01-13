@@ -7,7 +7,7 @@
 
     <!-- Package properties -->
     <PackageId>Vettvangur.DictionaryHelper</PackageId>
-    <Version>4.0.0</Version>
+    <Version>4.0.1</Version>
     <Title>Vettvangur Dictionary Helper</Title>
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -15,7 +15,7 @@
     <PackageIcon>images\VV_Logo.png</PackageIcon>
     <Description>Umbraco helper to fetch dictionary items for Umbraco</Description>
     <PackageReleaseNotes>Support for Umbraco 11</PackageReleaseNotes>
-    <Copyright>Copyright 2022</Copyright>
+    <Copyright>Copyright 2023</Copyright>
     <PackageTags>Umbraco Dictionary</PackageTags>
 
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
@@ -45,8 +45,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="10.3.2" />
-     <PackageReference Include="Umbraco.Cms.Web.Website" Version="10.3.2" /> 
+    <PackageReference Include="Umbraco.Cms.Core" Version="11.0.0" />
+     <PackageReference Include="Umbraco.Cms.Web.Website" Version="11.0.0" /> 
   </ItemGroup>
 
 </Project>
