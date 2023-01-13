@@ -40,11 +40,10 @@ namespace DictionaryHelper
 
         public void Handle(UmbracoApplicationStartingNotification notification)
         {
-            if (notification.RuntimeLevel >= Umbraco.Cms.Core.RuntimeLevel.Run)
-            {
-                _dictionaryCache.Fill();
-                Configuration.Resolver = _factory;
-            }
+            if (notification.RuntimeLevel < Umbraco.Cms.Core.RuntimeLevel.Run) return;
+
+            _dictionaryCache.Fill();
+            Configuration.Resolver = _factory;
         }
     }
 
