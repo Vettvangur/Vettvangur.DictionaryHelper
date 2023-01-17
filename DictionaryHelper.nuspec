@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Vettvangur.DictionaryHelper</id>
-    <version>1.0.10</version>
+    <version>1.1.0</version>
     <title>Umbraco Dictionary Helper</title>
     <authors>Vettvangur</authors>
     <owners>Vettvangur</owners>
     <projectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Umbraco helper to fetch dictionary items</description>
-    <releaseNotes>Fix ignore case</releaseNotes>
+    <releaseNotes>Fix duplicated keys being created that had no value</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <language>English</language>
     <dependencies>
