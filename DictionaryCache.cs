@@ -8,6 +8,8 @@ using DictionaryHelper.Models;
 using Umbraco.Core;
 using log4net;
 using System.Reflection;
+using Umbraco.Core.Models;
+using DictionaryItem = DictionaryHelper.Models.DictionaryItem;
 
 namespace DictionaryHelper
 {
@@ -25,26 +27,37 @@ namespace DictionaryHelper
 
 			var allLanguages = ls.GetAllLanguages();
 
-			foreach (var text in allTexts)
-			{
-				var key = allKeys.FirstOrDefault(x => x.id == text.UniqueId);
-				var language = allLanguages.FirstOrDefault(x => x.Id == text.languageId);
+            foreach (var key in allKeys)
+            {
+                var text = allTexts.FirstOrDefault(x => x.UniqueId == key.id);
+                ILanguage language = text != null ? allLanguages.FirstOrDefault(x => x.Id == text.languageId) : null;
 
-				if (key != null && language != null)
-				{
-					var dictionary = new DictionaryItem()
-					{
-						Id = key.id,
-						Key = key.key,
-						Value = text.value,
-						Culture = language.CultureInfo.Name
-					};
+                if (key != null && language != null)
+                {
+                    var dictionary = new Models.DictionaryItem()
+                    {
+                        Id = key.id,
+                        Key = key.key,
+                        Value = text.value,
+                        Culture = language.CultureInfo.Name
+                    };
 
-					_cache[dictionary.Key + "-" + dictionary.Culture] = dictionary;
-				}
+                    _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                }
+                else
+                {
+                    var dictionary = new Models.DictionaryItem()
+                    {
+                        Id = key.id,
+                        Key = key.key,
+                        Value = "",
+                        Culture = ""
+                    };
 
-			}
-		}
+                    _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                }
+            }
+        }
 
 		public static void AddOrUpdate(string key, Guid Id, string value, string culture = null)
 		{
