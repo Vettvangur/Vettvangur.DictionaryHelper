@@ -8,7 +8,7 @@ namespace DictionaryHelper
 {
     class DictionaryCache
 	{
-		public static ConcurrentDictionary<string, DictionaryItem> _cache = new ConcurrentDictionary<string, DictionaryItem>();
+        public static ConcurrentDictionary<string, DictionaryItem> _cache = new ConcurrentDictionary<string, DictionaryItem>();
 
         private readonly ILocalizationService _localizationService;
         private readonly DictionaryRepository _repository;
