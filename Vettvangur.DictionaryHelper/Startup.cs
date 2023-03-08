@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
@@ -18,6 +19,8 @@ namespace DictionaryHelper
                 .AddTransient<DictionaryRepository>()
                 ;
 
+            //Extensions.svc = builder.Services.BuildServiceProvider().GetService<DictionaryService>();
+
             builder
                 .AddNotificationHandler<DictionaryItemSavedNotification, NotificationHandlers>()
                 .AddNotificationHandler<DictionaryItemDeletingNotification, NotificationHandlers>()
@@ -36,6 +39,8 @@ namespace DictionaryHelper
         {
             _dictionaryCache = dictionaryCache;
             _factory = factory;
+
+            Extensions.svc = _factory.GetService<DictionaryService>();
         }
 
         public void Handle(UmbracoApplicationStartingNotification notification)

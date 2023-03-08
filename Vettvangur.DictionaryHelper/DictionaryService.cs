@@ -5,7 +5,7 @@ namespace DictionaryHelper
 {
     public class DictionaryService
 	{
-		private static IEnumerable<Umbraco.Cms.Core.Models.ILanguage> _allLanguages = null;
+		private IEnumerable<Umbraco.Cms.Core.Models.ILanguage> _allLanguages;
         private readonly ILocalizationService _localizationService;
 
         public DictionaryService(ILocalizationService localizationService)
