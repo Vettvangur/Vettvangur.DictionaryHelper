@@ -36,6 +36,8 @@ namespace DictionaryHelper
         {
             _dictionaryCache = dictionaryCache;
             _factory = factory;
+
+            Extensions.svc = _factory.GetService<DictionaryService>();
         }
 
         public void Initialize()
