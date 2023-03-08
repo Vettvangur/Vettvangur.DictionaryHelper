@@ -11,7 +11,7 @@
     <Title>Vettvangur Dictionary Helper</Title>
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/V11</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/v11</PackageProjectUrl>
     <PackageIcon>images\VV_Logo.png</PackageIcon>
     <Description>Umbraco helper to fetch dictionary items for Umbraco</Description>
     <PackageReleaseNotes>Fix Duplicates</PackageReleaseNotes>
