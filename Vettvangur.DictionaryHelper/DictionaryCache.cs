@@ -1,4 +1,3 @@
-using DictionaryHelper.Models;
 using System.Collections.Concurrent;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
@@ -28,7 +27,7 @@ namespace DictionaryHelper
 
             foreach (var lang in allLanguages)
             {
-                _languages[lang.CultureName] = lang;
+                _languages[lang.CultureInfo.Name] = lang;
             }
 
             foreach (var key in allKeys)

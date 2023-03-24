@@ -25,12 +25,13 @@ namespace DictionaryHelper
 
         public DictionaryItem GetDictionaryItem(string key)
         {
-            if (KeyExist(key))
+            try
             {
                 return DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase)).Value;
+            } catch
+            {
+                return null;
             }
-
-            return null;
         }
 
         public DictionaryItem GetByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
@@ -155,12 +156,12 @@ namespace DictionaryHelper
             {
                 var dict = _localizationService.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
 
+                _localizationService.Save(dict);
+
                 foreach (var la in DictionaryCache._languages)
                 {
                     UpdateDictionaryItemCache(_localizationService, dict, la.Value, defaultValue);
                 }
-
-                _localizationService.Save(dict);
 
                 return new DictionaryItem()
                 {
