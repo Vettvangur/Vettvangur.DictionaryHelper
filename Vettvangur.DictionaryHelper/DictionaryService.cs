@@ -1,11 +1,11 @@
-using DictionaryHelper.Models;
+using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
+using DictionaryItem = DictionaryHelper.Models.DictionaryItem;
 
 namespace DictionaryHelper
 {
     public class DictionaryService
     {
-        private IEnumerable<Umbraco.Cms.Core.Models.ILanguage> _allLanguages;
         private readonly ILocalizationService _localizationService;
 
         public DictionaryService(ILocalizationService localizationService)
@@ -57,8 +57,6 @@ namespace DictionaryHelper
 
             if (create)
             {
-                _allLanguages = _localizationService.GetAllLanguages();
-
                 if (keys.Length > 0)
                 {
                     var item = CreateDictionaryTree(keys, defaultValue, culture);
@@ -151,15 +149,15 @@ namespace DictionaryHelper
 
         private DictionaryItem CreateDictionaryItem(string key, string defaultValue, Guid? parent, string culture)
         {
-            var language = _allLanguages.FirstOrDefault(x => x.IsoCode == culture);
+            DictionaryCache._languages.TryGetValue(culture, out ILanguage language);
 
             if (language != null)
             {
                 var dict = _localizationService.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
 
-                foreach (var la in _allLanguages)
+                foreach (var la in DictionaryCache._languages)
                 {
-                    UpdateDictionaryItemCache(_localizationService, dict, la, defaultValue);
+                    UpdateDictionaryItemCache(_localizationService, dict, la.Value, defaultValue);
                 }
 
                 _localizationService.Save(dict);

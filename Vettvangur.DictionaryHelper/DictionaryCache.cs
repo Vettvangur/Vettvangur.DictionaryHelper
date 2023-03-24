@@ -9,6 +9,7 @@ namespace DictionaryHelper
     class DictionaryCache
 	{
         public static ConcurrentDictionary<string, DictionaryItem> _cache = new ConcurrentDictionary<string, DictionaryItem>();
+        public static ConcurrentDictionary<string, ILanguage> _languages = new ConcurrentDictionary<string, ILanguage>();
 
         private readonly ILocalizationService _localizationService;
         private readonly DictionaryRepository _repository;
@@ -24,6 +25,11 @@ namespace DictionaryHelper
 			var allTexts = _repository.GetAllText();
 
 			var allLanguages = _localizationService.GetAllLanguages();
+
+            foreach (var lang in allLanguages)
+            {
+                _languages[lang.CultureName] = lang;
+            }
 
             foreach (var key in allKeys)
             {
