@@ -1,13 +1,8 @@
 using NPoco;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DictionaryHelper.Models
 {
-	[TableName("cmsDictionary")]
+    [TableName("cmsDictionary")]
 	[PrimaryKey("pk", AutoIncrement = true)]
 	public class CmsDictionary
 	{

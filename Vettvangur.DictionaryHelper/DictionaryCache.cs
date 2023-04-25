@@ -32,32 +32,36 @@ namespace DictionaryHelper
 
             foreach (var key in allKeys)
             {
-                var text = allTexts.FirstOrDefault(x => x.UniqueId == key.id);
-                ILanguage? language = text != null ? allLanguages.FirstOrDefault(x => x.Id == text.languageId) : null;
+                var texts = allTexts.Where(x => x.UniqueId == key.id);
 
-                if (key != null && language != null)
+                foreach (var text in texts)
                 {
-                    var dictionary = new Models.DictionaryItem()
-                    {
-                        Id = key.id,
-                        Key = key.key,
-                        Value = text.value,
-                        Culture = language.CultureInfo.Name
-                    };
+                    ILanguage? language = text != null ? allLanguages.FirstOrDefault(x => x.Id == text.languageId) : null;
 
-                    _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
-                }
-                else
-                {
-                    var dictionary = new Models.DictionaryItem()
+                    if (language != null)
                     {
-                        Id = key.id,
-                        Key = key.key,
-                        Value = "",
-                        Culture = ""
-                    };
+                        var dictionary = new Models.DictionaryItem()
+                        {
+                            Id = key.id,
+                            Key = key.key,
+                            Value = text.value,
+                            Culture = language.CultureInfo.Name
+                        };
 
-                    _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                        _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                    }
+                    else
+                    {
+                        var dictionary = new Models.DictionaryItem()
+                        {
+                            Id = key.id,
+                            Key = key.key,
+                            Value = "",
+                            Culture = ""
+                        };
+
+                        _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                    }
                 }
             }
         }
