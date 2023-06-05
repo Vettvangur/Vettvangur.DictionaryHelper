@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Umbraco.Web;
+using System.Globalization;
 
 namespace DictionaryHelper
 {
