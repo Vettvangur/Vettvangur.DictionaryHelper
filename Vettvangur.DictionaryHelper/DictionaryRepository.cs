@@ -3,7 +3,7 @@ using Umbraco.Cms.Infrastructure.Scoping;
 
 namespace DictionaryHelper
 {
-    class DictionaryRepository
+    public class DictionaryRepository
 	{
         readonly IScopeProvider _scopeProvider;
 

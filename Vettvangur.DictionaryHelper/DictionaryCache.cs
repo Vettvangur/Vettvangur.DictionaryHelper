@@ -5,7 +5,7 @@ using DictionaryItem = DictionaryHelper.Models.DictionaryItem;
 
 namespace DictionaryHelper
 {
-    class DictionaryCache
+    public class DictionaryCache
 	{
         public static ConcurrentDictionary<string, DictionaryItem> _cache = new ConcurrentDictionary<string, DictionaryItem>();
         public static ConcurrentDictionary<string, ILanguage> _languages = new ConcurrentDictionary<string, ILanguage>();

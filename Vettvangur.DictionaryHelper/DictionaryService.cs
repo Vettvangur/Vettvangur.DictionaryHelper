@@ -7,10 +7,11 @@ namespace DictionaryHelper
     public class DictionaryService
     {
         private readonly ILocalizationService _localizationService;
-
-        public DictionaryService(ILocalizationService localizationService)
+        private readonly DictionaryCache _dictionaryCache;
+        public DictionaryService(ILocalizationService localizationService, DictionaryCache dictionaryCache)
         {
             _localizationService = localizationService;
+            _dictionaryCache = dictionaryCache;
         }
 
         public IEnumerable<DictionaryItem> GetAll()
@@ -161,6 +162,7 @@ namespace DictionaryHelper
                 foreach (var la in DictionaryCache._languages)
                 {
                     UpdateDictionaryItemCache(_localizationService, dict, la.Value, defaultValue);
+                    _dictionaryCache.AddOrUpdate(dict.ItemKey, dict.Key, defaultValue, la.Value.CultureInfo.Name);
                 }
 
                 return new DictionaryItem()
