@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.ContentEditing;
 using Umbraco.Cms.Core.Services;
+using static System.Net.Mime.MediaTypeNames;
 using DictionaryItem = DictionaryHelper.Models.DictionaryItem;
 
 namespace DictionaryHelper
@@ -34,30 +36,48 @@ namespace DictionaryHelper
             {
                 var texts = allTexts.Where(x => x.UniqueId == key.id);
 
-                foreach (var text in texts)
+                if (texts.Any())
                 {
-                    ILanguage? language = text != null ? allLanguages.FirstOrDefault(x => x.Id == text.languageId) : null;
-
-                    if (language != null)
+                    foreach (var text in texts)
                     {
-                        var dictionary = new Models.DictionaryItem()
-                        {
-                            Id = key.id,
-                            Key = key.key,
-                            Value = text.value,
-                            Culture = language.CultureInfo.Name
-                        };
+                        ILanguage? language = text != null ? allLanguages.FirstOrDefault(x => x.Id == text.languageId) : null;
 
-                        _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                        if (language != null)
+                        {
+                            var dictionary = new Models.DictionaryItem()
+                            {
+                                Id = key.id,
+                                Key = key.key,
+                                Value = text.value,
+                                Culture = language.CultureInfo.Name
+                            };
+
+                            _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                        }
+                        else
+                        {
+                            var dictionary = new Models.DictionaryItem()
+                            {
+                                Id = key.id,
+                                Key = key.key,
+                                Value = "",
+                                Culture = ""
+                            };
+
+                            _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    foreach (var lang in allLanguages)
                     {
                         var dictionary = new Models.DictionaryItem()
                         {
                             Id = key.id,
                             Key = key.key,
                             Value = "",
-                            Culture = ""
+                            Culture = lang.CultureInfo.Name
                         };
 
                         _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
