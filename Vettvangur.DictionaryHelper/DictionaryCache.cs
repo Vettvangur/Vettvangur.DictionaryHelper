@@ -1,8 +1,7 @@
+using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Models.ContentEditing;
 using Umbraco.Cms.Core.Services;
-using static System.Net.Mime.MediaTypeNames;
 using DictionaryItem = DictionaryHelper.Models.DictionaryItem;
 
 namespace DictionaryHelper
@@ -14,76 +13,85 @@ namespace DictionaryHelper
 
         private readonly ILocalizationService _localizationService;
         private readonly DictionaryRepository _repository;
-        public DictionaryCache(ILocalizationService localizationService, DictionaryRepository repository)
+        private readonly ILogger<DictionaryCache> _logger;
+        public DictionaryCache(ILocalizationService localizationService, DictionaryRepository repository, ILogger<DictionaryCache> logger)
         {
             _localizationService = localizationService;
             _repository = repository;
+            _logger = logger;
         }
 
         public void Fill()
 		{
-			var allKeys = _repository.GetAllKeys();
-			var allTexts = _repository.GetAllText();
-
-			var allLanguages = _localizationService.GetAllLanguages();
-
-            foreach (var lang in allLanguages)
+            try
             {
-                _languages[lang.CultureInfo.Name] = lang;
-            }
+                var allKeys = _repository.GetAllKeys();
+                var allTexts = _repository.GetAllText();
 
-            foreach (var key in allKeys)
-            {
-                var texts = allTexts.Where(x => x.UniqueId == key.id);
+                var allLanguages = _localizationService.GetAllLanguages();
 
-                if (texts.Any())
+                foreach (var lang in allLanguages)
                 {
-                    foreach (var text in texts)
+                    _languages[lang.CultureInfo.Name] = lang;
+                }
+
+                foreach (var key in allKeys)
+                {
+                    var texts = allTexts.Where(x => x.UniqueId == key.id);
+
+                    if (texts.Any())
                     {
-                        ILanguage? language = text != null ? allLanguages.FirstOrDefault(x => x.Id == text.languageId) : null;
-
-                        if (language != null)
+                        foreach (var text in texts)
                         {
-                            var dictionary = new Models.DictionaryItem()
-                            {
-                                Id = key.id,
-                                Key = key.key,
-                                Value = text.value,
-                                Culture = language.CultureInfo.Name
-                            };
+                            ILanguage? language = text != null ? allLanguages.FirstOrDefault(x => x.Id == text.languageId) : null;
 
-                            _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                            if (language != null)
+                            {
+                                var dictionary = new Models.DictionaryItem()
+                                {
+                                    Id = key.id,
+                                    Key = key.key,
+                                    Value = text.value,
+                                    Culture = language.CultureInfo.Name
+                                };
+
+                                _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                            }
+                            else
+                            {
+                                var dictionary = new Models.DictionaryItem()
+                                {
+                                    Id = key.id,
+                                    Key = key.key,
+                                    Value = "",
+                                    Culture = ""
+                                };
+
+                                _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
+                            }
                         }
-                        else
+                    }
+                    else
+                    {
+                        foreach (var lang in allLanguages)
                         {
                             var dictionary = new Models.DictionaryItem()
                             {
                                 Id = key.id,
                                 Key = key.key,
                                 Value = "",
-                                Culture = ""
+                                Culture = lang.CultureInfo.Name
                             };
 
                             _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
                         }
                     }
                 }
-                else
-                {
-                    foreach (var lang in allLanguages)
-                    {
-                        var dictionary = new Models.DictionaryItem()
-                        {
-                            Id = key.id,
-                            Key = key.key,
-                            Value = "",
-                            Culture = lang.CultureInfo.Name
-                        };
-
-                        _cache.TryAdd(dictionary.Key + "-" + dictionary.Culture, dictionary);
-                    }
-                }
+            } catch(Exception ex)
+            {
+                _logger.LogError(ex, "Failed to fill dictionary cache.");
             }
+
         }
 
 		public void AddOrUpdate(string key, Guid Id, string value, string culture = null)
