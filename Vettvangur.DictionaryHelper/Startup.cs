@@ -18,6 +18,8 @@ namespace DictionaryHelper
                 .AddTransient<DictionaryRepository>()
                 ;
 
+            builder.SearchableTrees().Add<SearchTree>();
+
             builder
                 .AddNotificationHandler<DictionaryItemSavedNotification, NotificationHandlers>()
                 .AddNotificationHandler<DictionaryItemDeletingNotification, NotificationHandlers>()

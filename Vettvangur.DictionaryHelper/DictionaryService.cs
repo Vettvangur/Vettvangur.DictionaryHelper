@@ -1,5 +1,6 @@
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Extensions;
 using DictionaryItem = DictionaryHelper.Models.DictionaryItem;
 
 namespace DictionaryHelper
@@ -33,6 +34,11 @@ namespace DictionaryHelper
             {
                 return null;
             }
+        }
+
+        public IEnumerable<DictionaryItem> SearchByValueOrKey(string value)
+        {
+            return DictionaryCache._cache.Where(x => x.Value.Value.InvariantContains(value) || x.Key.InvariantContains(value)).Select(x => x.Value);
         }
 
         public DictionaryItem GetByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
