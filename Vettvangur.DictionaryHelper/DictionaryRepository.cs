@@ -1,37 +1,36 @@
 using DictionaryHelper.Models;
 using Umbraco.Cms.Infrastructure.Scoping;
 
-namespace DictionaryHelper
+namespace DictionaryHelper;
+
+public class DictionaryRepository
 {
-    public class DictionaryRepository
-	{
-        readonly IScopeProvider _scopeProvider;
+    readonly IScopeProvider _scopeProvider;
 
-        public DictionaryRepository(IScopeProvider scopeProvider)
+    public DictionaryRepository(IScopeProvider scopeProvider)
+    {
+        _scopeProvider = scopeProvider;
+    }
+
+    public List<CmsDictionary> GetAllKeys()
+    {
+        using (var scope = _scopeProvider.CreateScope())
         {
-            _scopeProvider = scopeProvider;
+            var data = scope.Database.Fetch<CmsDictionary>();
+            scope.Complete();
+
+            return data;
         }
+    }
 
-        public List<CmsDictionary> GetAllKeys()
-		{
-			using (var scope = _scopeProvider.CreateScope())
-			{
-				var data = scope.Database.Fetch<CmsDictionary>();
-				scope.Complete();
+    public List<CmsLanguageText> GetAllText()
+    {
+        using (var scope = _scopeProvider.CreateScope())
+        {
+            var data = scope.Database.Fetch<CmsLanguageText>();
+            scope.Complete();
 
-				return data;
-			}
-		}
-
-		public List<CmsLanguageText> GetAllText()
-		{
-			using (var scope = _scopeProvider.CreateScope())
-			{
-				var data = scope.Database.Fetch<CmsLanguageText>();
-				scope.Complete();
-
-				return data;
-			}
-		}
-	}
+            return data;
+        }
+    }
 }

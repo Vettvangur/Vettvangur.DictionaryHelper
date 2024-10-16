@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace DictionaryHelper;
 
-namespace DictionaryHelper
+internal class Configuration
 {
-    internal class Configuration
-    {
-        public static IServiceProvider Resolver { get; internal set; }
-    }
+    public static IServiceProvider Resolver { get; internal set; }
 }

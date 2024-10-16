@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace DictionaryHelper.Models;
 
-namespace DictionaryHelper.Models
+public class DictionaryItem
 {
-	public class DictionaryItem
-	{
-		public string Key { get; set; }
-		public string Value { get; set; }
-		public string Culture { get; set; }
-		public Guid Id { get; set; }
-	}
+    public string Key { get; set; }
+    public string Value { get; set; }
+    public string Culture { get; set; }
+    public Guid Id { get; set; }
+    public Guid Parent { get; set; }
 }

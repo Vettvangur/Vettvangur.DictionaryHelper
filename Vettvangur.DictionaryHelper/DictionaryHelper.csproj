@@ -7,14 +7,14 @@
 
     <!-- Package properties -->
     <PackageId>Vettvangur.DictionaryHelper</PackageId>
-    <Version>4.2.0</Version>
+    <Version>4.3.0</Version>
     <Title>Vettvangur Dictionary Helper</Title>
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/v11</PackageProjectUrl>
     <PackageIcon>images\VV_Logo.png</PackageIcon>
     <Description>Umbraco helper to fetch dictionary items for Umbraco</Description>
-    <PackageReleaseNotes>Added searchable tree and MIT License</PackageReleaseNotes>
+    <PackageReleaseNotes>Update Umbraco to 11.5.0, GetDescendants, Get Children Refactor</PackageReleaseNotes>
     <Copyright>Copyright 2023</Copyright>
     <PackageTags>Umbraco Dictionary</PackageTags>
 
@@ -44,9 +44,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="11.0.0" />
-     <PackageReference Include="Umbraco.Cms.Web.Website" Version="11.0.0" /> 
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Umbraco.Cms.Core" Version="11.5.0" />
+     <PackageReference Include="Umbraco.Cms.Web.Website" Version="11.5.0" /> 
   </ItemGroup>
 
 </Project>
