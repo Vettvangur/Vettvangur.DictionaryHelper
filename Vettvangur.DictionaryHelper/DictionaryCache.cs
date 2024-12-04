@@ -85,7 +85,7 @@ namespace DictionaryHelper
             _cache.TryAdd($"{dictionaryItem.Key}-{dictionaryItem.Culture}", dictionaryItem);
         }
 
-        public void AddOrUpdate(string key, Guid Id, string value, string culture = null)
+        public void AddOrUpdate(string key, Guid Id, string value, Guid? parent, string culture = null)
 		{
 			if (culture == null)
 			{
@@ -93,24 +93,25 @@ namespace DictionaryHelper
 
 				foreach (var language in allLanguages)
 				{
-					AddOrUpdateItem(key, Id, value, language.CultureInfo.Name);
+					AddOrUpdateItem(key, Id, value, parent, language.CultureInfo.Name);
 				}
 			} 
             else
 			{
-				AddOrUpdateItem(key, Id, value, culture);
+				AddOrUpdateItem(key, Id, value, parent, culture);
 			}
 		}
 
-		private void AddOrUpdateItem(string key, Guid id, string value, string culture)
+		private void AddOrUpdateItem(string key, Guid id, string value, Guid? parent, string culture)
 		{
-			var dictionary = new DictionaryItem()
-			{
-				Id = id,
-				Key = key,
-				Value = value,
-				Culture = culture
-			};
+            var dictionary = new DictionaryItem()
+            {
+                Id = id,
+                Key = key,
+                Value = value,
+                Culture = culture,
+                Parent = parent.HasValue ? parent.Value : Guid.Empty
+            };
 
 			_cache.AddOrUpdate(dictionary.Key + "-" + dictionary.Culture, dictionary, (k, oldValue) => dictionary);
 		}

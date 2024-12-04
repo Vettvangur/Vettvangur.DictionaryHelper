@@ -104,7 +104,7 @@ class NotificationHandlers :
         {
             foreach (var t in e.Translations)
             {
-                _dictionaryCache.AddOrUpdate(e.ItemKey, t.Key, t.Value, t.Language.IsoCode);
+                _dictionaryCache.AddOrUpdate(e.ItemKey, t.Key, t.Value, e.ParentId, t.Language.IsoCode);
             }
         }
     }

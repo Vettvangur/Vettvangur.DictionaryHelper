@@ -220,7 +220,7 @@ public class DictionaryService
             foreach (var la in DictionaryCache._languages)
             {
                 UpdateDictionaryItemCache(_localizationService, dict, la.Value, defaultValue);
-                _dictionaryCache.AddOrUpdate(dict.ItemKey, dict.Key, defaultValue, la.Value.CultureInfo.Name);
+                _dictionaryCache.AddOrUpdate(dict.ItemKey, dict.Key, defaultValue, dict.ParentId, la.Value.CultureInfo.Name);
             }
 
             return new DictionaryItem()
