@@ -12,22 +12,22 @@ public class DictionaryRepository
         _scopeProvider = scopeProvider;
     }
 
-    public List<CmsDictionary> GetAllKeys()
+    public async Task<List<CmsDictionary>> GetAllKeysAsync(CancellationToken ct)
     {
         using (var scope = _scopeProvider.CreateScope())
         {
-            var data = scope.Database.Fetch<CmsDictionary>();
+            var data = await scope.Database.FetchAsync<CmsDictionary>(ct).ConfigureAwait(false);
             scope.Complete();
 
             return data;
         }
     }
 
-    public List<CmsLanguageText> GetAllText()
+    public async Task<List<CmsLanguageText>> GetAllTextAsync(CancellationToken ct)
     {
         using (var scope = _scopeProvider.CreateScope())
         {
-            var data = scope.Database.Fetch<CmsLanguageText>();
+            var data = await scope.Database.FetchAsync<CmsLanguageText>(ct).ConfigureAwait(false);
             scope.Complete();
 
             return data;

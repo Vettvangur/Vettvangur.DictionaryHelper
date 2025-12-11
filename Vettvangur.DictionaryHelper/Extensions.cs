@@ -5,8 +5,6 @@ namespace DictionaryHelper;
 
 public static class Extensions
 {
-    static public DictionaryService svc { set; get; }
-
     /// <summary>
     /// Returns the dictionary value for the key specified
     /// </summary>
@@ -15,7 +13,7 @@ public static class Extensions
     /// <param name="parentKey">Optional: Key will be created as a child of the parent key.</param>
     /// <param name="create">Optional: If key does not exist it will be created. Requires default value.</param>
     /// <returns>Dictionary string value</returns>
-    public static string DictionaryValue(this UmbracoHelper helper, string key, string defaultValue = null, string parentKey = null, bool create = false)
+    public static async Task<string> DictionaryValue(this UmbracoHelper helper, string key, string? defaultValue = null, string? parentKey = null, bool create = false)
     {
         //var content = helper.AssignedContentItem;
 
@@ -28,8 +26,12 @@ public static class Extensions
 
         var svc = Configuration.Resolver.GetService<DictionaryService>();
 
-        var value = svc?.GetValueByKeyAndCulture(key, culture, defaultValue, parentKey, create);
+        if (svc == null)         {
+            return defaultValue ?? "";
+        }
 
-        return value;
+        var value = await svc.GetValueByKeyAndCultureAsync(key, culture, defaultValue, parentKey, create).ConfigureAwait(false);
+
+        return value ?? defaultValue ?? "";
     }
 }

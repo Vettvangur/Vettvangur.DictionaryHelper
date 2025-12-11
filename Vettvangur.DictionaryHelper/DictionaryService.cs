@@ -7,12 +7,12 @@ namespace DictionaryHelper;
 
 public class DictionaryService
 {
-    private readonly ILocalizationService _localizationService;
-    private readonly DictionaryCache _dictionaryCache;
-    public DictionaryService(ILocalizationService localizationService, DictionaryCache dictionaryCache)
+    private readonly IDictionaryItemService _dictionaryItemService;
+    public DictionaryService(
+        IDictionaryItemService dictionaryItemService
+        )
     {
-        _localizationService = localizationService;
-        _dictionaryCache = dictionaryCache;
+        _dictionaryItemService = dictionaryItemService;
     }
 
     public IEnumerable<DictionaryItem> GetAll()
@@ -25,7 +25,7 @@ public class DictionaryService
         return DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
     }
 
-    public DictionaryItem GetDictionaryItem(string key)
+    public DictionaryItem? GetDictionaryItem(string key)
     {
         try
         {
@@ -93,11 +93,11 @@ public class DictionaryService
         return DictionaryCache._cache.Where(x => x.Value.Value.InvariantContains(value) || x.Key.InvariantContains(value)).Select(x => x.Value);
     }
 
-    public DictionaryItem GetByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
+    public async Task<DictionaryItem?> GetByKeyAndCultureAsync(string key, string culture, string? defaultValue = null, string? parentKey = null, bool create = false)
     {
         var keys = new string[] { };
 
-        if (key.Contains("."))
+        if (key.Contains(".", StringComparison.InvariantCultureIgnoreCase))
         {
             keys = key.Split('.');
 
@@ -119,20 +119,20 @@ public class DictionaryService
         {
             if (keys.Length > 0)
             {
-                var item = CreateDictionaryTree(keys, defaultValue, culture);
+                var item = await CreateDictionaryTreeAsync(keys, defaultValue, culture).ConfigureAwait(false);
 
                 return item;
             }
             else
             {
-                DictionaryItem parentItem = null;
+                DictionaryItem? parentItem = null;
 
                 if (!string.IsNullOrEmpty(parentKey))
                 {
                     parentItem = GetDictionaryItem(parentKey);
                 }
 
-                var item = CreateDictionaryItem(key, defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture);
+                var item = await CreateDictionaryItemAsync(key, defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture).ConfigureAwait(false);
 
                 return item;
             }
@@ -144,14 +144,14 @@ public class DictionaryService
                 Id = Guid.Empty,
                 Culture = culture,
                 Key = key,
-                Value = defaultValue
+                Value = defaultValue ?? ""
             };
         }
     }
 
-    public string GetValueByKeyAndCulture(string key, string culture, string defaultValue = null, string parentKey = null, bool create = false)
+    public async Task<string> GetValueByKeyAndCultureAsync(string key, string culture, string? defaultValue = null, string? parentKey = null, bool create = false)
     {
-        var dict = GetByKeyAndCulture(key, culture, defaultValue, parentKey, create);
+        var dict = await GetByKeyAndCultureAsync(key, culture, defaultValue, parentKey, create).ConfigureAwait(false);
 
         if (dict != null)
         {
@@ -161,7 +161,7 @@ public class DictionaryService
         return string.Empty;
     }
 
-    private DictionaryItem CreateDictionaryTree(string[] keys, string defaultValue, string culture)
+    private async Task <DictionaryItem?> CreateDictionaryTreeAsync(string[] keys, string? defaultValue, string culture)
     {
 
         for (int i = 0; i < keys.Length; i++)
@@ -173,7 +173,7 @@ public class DictionaryService
             if (item == null)
             {
 
-                DictionaryItem parentItem = null;
+                DictionaryItem? parentItem = null;
                 var _defaultValue = string.Empty;
 
                 if (i > 0)
@@ -186,7 +186,7 @@ public class DictionaryService
                     _defaultValue = defaultValue;
                 }
 
-                var dict = CreateDictionaryItem(key, _defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture);
+                var dict = await CreateDictionaryItemAsync(key, _defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture).ConfigureAwait(false);
 
                 if (i == keys.Length - 1)
                 {
@@ -207,40 +207,42 @@ public class DictionaryService
 
     }
 
-    private DictionaryItem CreateDictionaryItem(string key, string defaultValue, Guid? parent, string culture)
+    private async Task<DictionaryItem?> CreateDictionaryItemAsync(string key, string? defaultValue, Guid? parent, string culture)
     {
-        DictionaryCache._languages.TryGetValue(culture, out ILanguage language);
+        DictionaryCache._languages.TryGetValue(culture, out ILanguage? language);
 
         if (language != null)
         {
-            var dict = _localizationService.CreateDictionaryItemWithIdentity(key, parent, defaultValue);
+            var dictItem = new Umbraco.Cms.Core.Models.DictionaryItem(parent, key);
 
-            _localizationService.Save(dict);
+            var translations = new List<DictionaryTranslation>();
 
             foreach (var la in DictionaryCache._languages)
             {
-                UpdateDictionaryItemCache(_localizationService, dict, la.Value, defaultValue);
-                _dictionaryCache.AddOrUpdate(dict.ItemKey, dict.Key, defaultValue, dict.ParentId, la.Value.CultureInfo.Name);
+                translations.Add(new DictionaryTranslation(la.Value, defaultValue ?? ""));
             }
 
-            return new DictionaryItem()
+            dictItem.Translations = translations;
+
+            var dict = await _dictionaryItemService.CreateAsync(dictItem, Guid.Empty).ConfigureAwait(false);
+
+            if (dict.Success)
             {
-                Culture = culture,
-                Id = dict.Key,
-                Key = key,
-                Value = defaultValue
-            };
+                var result = dict.Result;
+
+                return new DictionaryItem()
+                {
+                    Culture = culture,
+                    Id = result.Key,
+                    Key = key,
+                    Value = defaultValue ?? ""
+                };
+            }
+
+            throw new Exception($"Failed to create dictionary item. Key: {key} Status: {dict.Status.ToString()}", dict.Exception);
+
         }
 
         return null;
-    }
-
-    private void UpdateDictionaryItemCache(
-        ILocalizationService ls,
-        Umbraco.Cms.Core.Models.IDictionaryItem dict,
-        Umbraco.Cms.Core.Models.ILanguage language,
-        string defaultValue)
-    {
-        ls.AddOrUpdateDictionaryValue(dict, language, defaultValue);
     }
 }

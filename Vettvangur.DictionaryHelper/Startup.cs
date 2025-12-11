@@ -18,18 +18,18 @@ class DictionaryComposer : IComposer
             .AddTransient<DictionaryRepository>()
             ;
 
-        builder.SearchableTrees().Add<SearchTree>();
+        //builder.SearchableTrees().Add<SearchTree>();
 
         builder
-            .AddNotificationHandler<DictionaryItemSavedNotification, NotificationHandlers>()
-            .AddNotificationHandler<DictionaryItemDeletingNotification, NotificationHandlers>()
+            .AddNotificationAsyncHandler<DictionaryItemSavedNotification, NotificationHandlers>()
+            .AddNotificationAsyncHandler<DictionaryItemDeletingNotification, NotificationHandlers>()
         ;
 
         builder.Components().Append<Startup>();
     }
 }
 
-class Startup : IComponent
+class Startup : IAsyncComponent
 {
     readonly DictionaryCache _dictionaryCache;
     readonly IServiceProvider _factory;
@@ -38,45 +38,46 @@ class Startup : IComponent
     {
         _dictionaryCache = dictionaryCache;
         _factory = factory;
-
-        Extensions.svc = _factory.GetService<DictionaryService>();
     }
 
-    public void Initialize()
+    public async Task InitializeAsync(bool isRestarting, CancellationToken cancellationToken)
     {
-        _dictionaryCache.Fill();
+        await _dictionaryCache.FillAsync(cancellationToken).ConfigureAwait(false);
         Configuration.Resolver = _factory;
     }
 
-    public void Terminate() { }
+    public Task TerminateAsync(bool isRestarting, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 }
 
 class NotificationHandlers :
-    INotificationHandler<DictionaryItemSavedNotification>,
-    INotificationHandler<DictionaryItemDeletingNotification>
+    INotificationAsyncHandler<DictionaryItemSavedNotification>,
+    INotificationAsyncHandler<DictionaryItemDeletingNotification>
 {
     readonly DictionaryCache _dictionaryCache;
-    readonly ILocalizationService _localizationService;
+    readonly IDictionaryItemService _dictionaryItemService;
     readonly ILogger<DictionaryItemDeletingNotification> _logger;
-    public NotificationHandlers(DictionaryCache dictionaryCache, ILogger<DictionaryItemDeletingNotification> logger, ILocalizationService localizationService)
+    public NotificationHandlers(DictionaryCache dictionaryCache, ILogger<DictionaryItemDeletingNotification> logger, IDictionaryItemService dictionaryItemService)
     {
         _dictionaryCache = dictionaryCache;
         _logger = logger;
-        _localizationService = localizationService;
+        _dictionaryItemService = dictionaryItemService;
     }
 
-    public void Handle(DictionaryItemDeletingNotification n)
+    public async Task HandleAsync(DictionaryItemDeletingNotification notification, CancellationToken cancellationToken)
     {
         try
         {
-            foreach (var e in n.DeletedEntities)
+            foreach (var e in notification.DeletedEntities)
             {
                 foreach (var t in e.Translations)
                 {
-                    _dictionaryCache.Remove(e.ItemKey + "-" + t.Language.IsoCode);
+                    _dictionaryCache.Remove(e.ItemKey + "-" + t.LanguageIsoCode);
                 }
 
-                var children = _localizationService.GetDictionaryItemDescendants(e.Key);
+                var children = await _dictionaryItemService.GetDescendantsAsync(e.Key).ConfigureAwait(false);
 
                 if (children.Any())
                 {
@@ -84,7 +85,7 @@ class NotificationHandlers :
                     {
                         foreach (var t in c.Translations)
                         {
-                            _dictionaryCache.Remove(c.ItemKey + "-" + t.Language.IsoCode);
+                            _dictionaryCache.Remove(c.ItemKey + "-" + t.LanguageIsoCode);
                         }
                     }
                 }
@@ -96,15 +97,14 @@ class NotificationHandlers :
             _logger.LogError(ex, "Failed to remove dictionary from cache.");
         }
 
-
     }
-    public void Handle(DictionaryItemSavedNotification n)
+    public async Task HandleAsync(DictionaryItemSavedNotification notification, CancellationToken cancellationToken)
     {
-        foreach (var e in n.SavedEntities)
+        foreach (var e in notification.SavedEntities)
         {
             foreach (var t in e.Translations)
             {
-                _dictionaryCache.AddOrUpdate(e.ItemKey, t.Key, t.Value, e.ParentId, t.Language.IsoCode);
+                await _dictionaryCache.AddOrUpdateAsync(e.ItemKey, t.Key, t.Value, e.ParentId, t.LanguageIsoCode).ConfigureAwait(false);
             }
         }
     }

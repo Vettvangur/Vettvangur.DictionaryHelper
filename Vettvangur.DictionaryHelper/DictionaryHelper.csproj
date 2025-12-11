@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
     <!-- Package properties -->
     <PackageId>Vettvangur.DictionaryHelper</PackageId>
-    <Version>4.4.0</Version>
+    <Version>5.0.0</Version>
     <Title>Vettvangur Dictionary Helper</Title>
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/v11</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/17</PackageProjectUrl>
     <PackageIcon>images\VV_Logo.png</PackageIcon>
     <Description>Umbraco helper to fetch dictionary items for Umbraco</Description>
-    <PackageReleaseNotes>Fix issue where publish event is not filling in the parent value</PackageReleaseNotes>
+    <PackageReleaseNotes>Release for Umbraco 17</PackageReleaseNotes>
     <Copyright>Copyright 2023</Copyright>
     <PackageTags>Umbraco Dictionary</PackageTags>
 
@@ -45,8 +45,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="11.5.0" />
-     <PackageReference Include="Umbraco.Cms.Web.Website" Version="11.5.0" /> 
+    <PackageReference Include="Umbraco.Cms.Core" Version="17.0.2" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.2" />
   </ItemGroup>
 
 </Project>
