@@ -1,0 +1,16 @@
+{
+  "packages": {
+    ".": {
+      "package-name": "Vettvangur.DictionaryHelper",
+      "release-type": "simple",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "xml",
+          "path": "DictionaryHelper.csproj",
+          "xpath": "/Project/PropertyGroup/Version"
+        }
+      ]
+    }
+  }
+}

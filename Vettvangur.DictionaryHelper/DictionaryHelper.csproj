@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -12,30 +12,30 @@
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/17</PackageProjectUrl>
-    <PackageIcon>images\VV_Logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/17</RepositoryUrl>
     <Description>Umbraco helper to fetch dictionary items for Umbraco</Description>
     <PackageReleaseNotes>Release for Umbraco 17</PackageReleaseNotes>
     <Copyright>Copyright 2023</Copyright>
     <PackageTags>Umbraco Dictionary</PackageTags>
 
-    <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Icon & README -->
+    <PackageIcon>VV_Logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
 
-    <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-
-    <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <!-- Symbols & SourceLink -->
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
+    <!-- Build / docs -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
-  <PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- Optional QoL -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!-- <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild> -->
+    
   </PropertyGroup>
 
   <!-- Package icon -->
@@ -44,7 +44,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <None Include="../VV_Logo.png" Pack="true" PackagePath=""/>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
+    <None Include="../CHANGELOG.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="Umbraco.Cms.Core" Version="17.0.2" />
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.2" />
   </ItemGroup>

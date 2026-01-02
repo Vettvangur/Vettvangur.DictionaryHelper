@@ -10,7 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.whitesource = .whitesource
 		Changelog.md = Changelog.md
 		README.md = README.md
-		release-build-push.ps1 = release-build-push.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryHelper", "Vettvangur.DictionaryHelper\DictionaryHelper.csproj", "{00647B94-0EB4-413A-9623-5E87FC58A40C}"

@@ -15,14 +15,7 @@ public static class Extensions
     /// <returns>Dictionary string value</returns>
     public static async Task<string> DictionaryValue(this UmbracoHelper helper, string key, string? defaultValue = null, string? parentKey = null, bool create = false)
     {
-        //var content = helper.AssignedContentItem;
-
         string culture = Thread.CurrentThread.CurrentCulture.Name;
-
-        //if (content != null)
-        //{
-        //	culture = content.GetCultureFromDomains();
-        //}
 
         var svc = Configuration.Resolver.GetService<DictionaryService>();
 
