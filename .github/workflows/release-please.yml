@@ -13,17 +13,13 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      id-token: write
-
     steps:
       - id: rp
         uses: googleapis/release-please-action@v4
         with:
-          config-file: ./release-please-config.json
-          manifest-file: ./release-please-manifest.json
+          target-branch: "17"
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
 
       - uses: actions/checkout@v4
         if: ${{ steps.rp.outputs.release_created == 'true' }}
@@ -45,23 +41,13 @@ jobs:
         if: ${{ steps.rp.outputs.release_created == 'true' }}
         shell: bash
         run: |
-          echo "paths_released:"
           echo '${{ steps.rp.outputs.paths_released }}' | jq .
 
           mkdir -p artifacts
 
-          # For each released path, pack any .csproj found there (and one level below)
           while IFS= read -r path; do
             echo "Released path: $path"
-
-            # Find packable projects
             mapfile -t projects < <(find "$path" -maxdepth 2 -name '*.csproj' -print)
-
-            if [ ${#projects[@]} -eq 0 ]; then
-              echo "No .csproj found under $path"
-              continue
-            fi
-
             for proj in "${projects[@]}"; do
               echo "Packing: $proj"
               dotnet pack "$proj" -c Release --no-build -o ./artifacts
