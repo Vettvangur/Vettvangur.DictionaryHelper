@@ -17,13 +17,13 @@ jobs:
       contents: write
       pull-requests: write
       id-token: write
-
-    steps:
+      
       - id: rp
         uses: googleapis/release-please-action@v4
         with:
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
+          target-branch: main
+          config-file: ./release-please-config.json
+          manifest-file: ./.release-please-manifest.json
 
       - uses: actions/checkout@v4
         if: ${{ steps.rp.outputs.release_created == 'true' }}
