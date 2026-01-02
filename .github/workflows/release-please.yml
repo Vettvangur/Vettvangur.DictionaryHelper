@@ -43,22 +43,12 @@ jobs:
         if: ${{ steps.rp.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
         run: dotnet build -c Release --no-restore
 
-      - name: Pack released paths
-        if: ${{ steps.rp.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
-        shell: bash
+      - name: Pack
+        if: ${{ steps.rp.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish) }}
         run: |
-          echo '${{ steps.rp.outputs.paths_released }}' | jq .
-
           mkdir -p artifacts
-
-          while IFS= read -r path; do
-            echo "Released path: $path"
-            mapfile -t projects < <(find "$path" -maxdepth 2 -name '*.csproj' -print)
-            for proj in "${projects[@]}"; do
-              echo "Packing: $proj"
-              dotnet pack "$proj" -c Release --no-build -o ./artifacts
-            done
-          done < <(echo '${{ steps.rp.outputs.paths_released }}' | jq -r '.[]')
+          dotnet pack "Vettvangur.DictionaryHelper/DictionaryHelper.csproj" \
+            -c Release --no-build -o ./artifacts
 
       - name: NuGet Login (OIDC)
         id: login
