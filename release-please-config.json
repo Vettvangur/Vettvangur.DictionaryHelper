@@ -7,7 +7,7 @@
       "extra-files": [
         {
           "type": "xml",
-          "path": "DictionaryHelper.csproj",
+          "path": "Vettvangur.DictionaryHelper/DictionaryHelper.csproj",
           "xpath": "/Project/PropertyGroup/Version"
         }
       ]
