@@ -1,68 +1,58 @@
-name: release-please
+name: build-and-publish
 
 on:
   push:
-    branches: ["17"]
-  workflow_dispatch: {}
+    tags:
+      - "v*"
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
   id-token: write
 
 jobs:
-  release-please:
+  build-pack-push:
     runs-on: ubuntu-latest
     steps:
-      - id: rp
-        uses: googleapis/release-please-action@v4
-        with:
-          target-branch: "17"
-          config-file: .release-please-config.json
-          manifest-file: .release-please-manifest.json
-
       - uses: actions/checkout@v4
-        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
-        if: ${{ steps.rp.outputs.release_created == 'true' }}
         with:
           dotnet-version: "10.0.x"
 
+      - name: Compute version from tag
+        id: ver
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"          # e.g. v1.2.3
+          VERSION="${TAG#v}"               # 1.2.3
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Tag=$TAG Version=$VERSION"
+
       - name: Restore
-        if: ${{ steps.rp.outputs.release_created == 'true' }}
         run: dotnet restore
 
       - name: Build (Release)
-        if: ${{ steps.rp.outputs.release_created == 'true' }}
         run: dotnet build -c Release --no-restore
 
-      - name: Pack released paths
-        if: ${{ steps.rp.outputs.release_created == 'true' }}
-        shell: bash
+      - name: Pack (force exact version)
         run: |
-          echo '${{ steps.rp.outputs.paths_released }}' | jq .
-
           mkdir -p artifacts
-
-          while IFS= read -r path; do
-            echo "Released path: $path"
-            mapfile -t projects < <(find "$path" -maxdepth 2 -name '*.csproj' -print)
-            for proj in "${projects[@]}"; do
-              echo "Packing: $proj"
-              dotnet pack "$proj" -c Release --no-build -o ./artifacts
-            done
-          done < <(echo '${{ steps.rp.outputs.paths_released }}' | jq -r '.[]')
+          dotnet pack "Vettvangur.DictionaryHelper/DictionaryHelper.csproj" \
+            -c Release \
+            --no-build \
+            -o ./artifacts \
+            /p:PackageVersion=${{ steps.ver.outputs.version }} \
+            /p:Version=${{ steps.ver.outputs.version }}
 
       - name: NuGet Login (OIDC)
         id: login
-        if: ${{ steps.rp.outputs.release_created == 'true' }}
         uses: NuGet/login@v1
         with:
           user: Vettvangur
 
       - name: Push to NuGet.org
-        if: ${{ steps.rp.outputs.release_created == 'true' }}
         run: |
           dotnet nuget push "./artifacts/*.nupkg" \
             --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
