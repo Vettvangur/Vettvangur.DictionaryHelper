@@ -41,7 +41,7 @@ public class DictionaryCache
 
             foreach (var lang in allLanguages)
             {
-                _languages[lang.CultureName] = lang;
+                _languages[lang.IsoCode] = lang;
             }
 
             // Iterate through each key and populate _cache
@@ -56,7 +56,7 @@ public class DictionaryCache
                     {
                         // Find language based on text's languageId
                         var language = allLanguages.FirstOrDefault(lang => lang.Id == text.languageId);
-                        AddToCache(key, text?.value ?? "", language?.CultureName ?? "");
+                        AddToCache(key, text?.value ?? "", language?.IsoCode ?? "");
                     }
                 }
                 else
@@ -64,7 +64,7 @@ public class DictionaryCache
                     // No texts for the key; add empty values for all languages
                     foreach (var language in allLanguages)
                     {
-                        AddToCache(key, "", language?.CultureName ?? "");
+                        AddToCache(key, "", language?.IsoCode ?? "");
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class DictionaryCache
 
             foreach (var language in allLanguages)
             {
-                AddOrUpdateItem(key, Id, value, parent, language.CultureName);
+                AddOrUpdateItem(key, Id, value, parent, language.IsoCode);
             }
         }
         else
