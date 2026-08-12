@@ -8,11 +8,14 @@ namespace DictionaryHelper;
 public class DictionaryService
 {
     private readonly IDictionaryItemService _dictionaryItemService;
+    private readonly ILanguageService _languageService;
     public DictionaryService(
-        IDictionaryItemService dictionaryItemService
+        IDictionaryItemService dictionaryItemService,
+        ILanguageService languageService
         )
     {
         _dictionaryItemService = dictionaryItemService;
+        _languageService = languageService;
     }
 
     public IEnumerable<DictionaryItem> GetAll()
@@ -104,15 +107,27 @@ public class DictionaryService
             key = keys.Last();
         }
 
-        if (DictionaryCache._cache.Any(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase)))
+        DictionaryItem? parentItem = null;
+
+        if (keys.Length == 0 && !string.IsNullOrEmpty(parentKey))
         {
+            parentItem = await GetDictionaryItemAsync(parentKey, null, culture).ConfigureAwait(false)
+                ?? throw new InvalidOperationException($"Dictionary parent item '{parentKey}' was not found.");
+        }
 
-            var dict = DictionaryCache._cache.FirstOrDefault(x => x.Value.Key.Equals(key, StringComparison.OrdinalIgnoreCase) && x.Value.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+        var existingItem = DictionaryCache._cache.Values.FirstOrDefault(x =>
+            x.Key.Equals(key, StringComparison.OrdinalIgnoreCase)
+            && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase)
+            && x.Parent == (parentItem?.Id ?? Guid.Empty));
 
-            if (!string.IsNullOrEmpty(dict.Value.Value))
+        if (existingItem != null)
+        {
+            if (!string.IsNullOrEmpty(existingItem.Value) || !create)
             {
-                return dict.Value;
+                return existingItem;
             }
+
+            return await SetDefaultValueAsync(existingItem, defaultValue, culture).ConfigureAwait(false);
         }
 
         if (create)
@@ -125,14 +140,16 @@ public class DictionaryService
             }
             else
             {
-                DictionaryItem? parentItem = null;
+                var item = await GetDictionaryItemAsync(key, parentItem?.Id, culture).ConfigureAwait(false);
 
-                if (!string.IsNullOrEmpty(parentKey))
+                if (item != null)
                 {
-                    parentItem = GetDictionaryItem(parentKey);
+                    return string.IsNullOrEmpty(item.Value)
+                        ? await SetDefaultValueAsync(item, defaultValue, culture).ConfigureAwait(false)
+                        : item;
                 }
 
-                var item = await CreateDictionaryItemAsync(key, defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture).ConfigureAwait(false);
+                item = await CreateDictionaryItemAsync(key, defaultValue, parentItem?.Id, culture).ConfigureAwait(false);
 
                 return item;
             }
@@ -161,50 +178,117 @@ public class DictionaryService
         return string.Empty;
     }
 
-    private async Task <DictionaryItem?> CreateDictionaryTreeAsync(string[] keys, string? defaultValue, string culture)
+    private async Task<DictionaryItem?> CreateDictionaryTreeAsync(string[] keys, string? defaultValue, string culture)
     {
+        Guid? parent = null;
+        DictionaryItem? item = null;
 
         for (int i = 0; i < keys.Length; i++)
         {
             var key = keys[i];
-
-            var item = GetDictionaryItem(key);
+            item = await GetDictionaryItemAsync(key, parent, culture).ConfigureAwait(false);
 
             if (item == null)
             {
-
-                DictionaryItem? parentItem = null;
-                var _defaultValue = string.Empty;
-
-                if (i > 0)
-                {
-                    parentItem = GetDictionaryItem(keys[i - 1]);
-                }
-
-                if (i == keys.Length - 1)
-                {
-                    _defaultValue = defaultValue;
-                }
-
-                var dict = await CreateDictionaryItemAsync(key, _defaultValue, parentItem != null ? parentItem.Id : (Guid?)null, culture).ConfigureAwait(false);
-
-                if (i == keys.Length - 1)
-                {
-                    return dict;
-                }
-
+                item = await CreateDictionaryItemAsync(key, i == keys.Length - 1 ? defaultValue : string.Empty, parent, culture).ConfigureAwait(false);
             }
-            else
+
+            if (item == null)
             {
-                if (i == keys.Length - 1)
-                {
-                    return item;
-                }
+                return null;
             }
+
+            if (i == keys.Length - 1)
+            {
+                return string.IsNullOrEmpty(item.Value)
+                    ? await SetDefaultValueAsync(item, defaultValue, culture).ConfigureAwait(false)
+                    : item;
+            }
+
+            parent = item.Id;
         }
 
         return null;
 
+    }
+
+    private async Task<DictionaryItem?> GetDictionaryItemAsync(string key, Guid? parent, string culture)
+    {
+        var parentId = parent ?? Guid.Empty;
+        var cachedItem = DictionaryCache._cache.Values.FirstOrDefault(x =>
+            x.Key.Equals(key, StringComparison.OrdinalIgnoreCase)
+            && x.Parent == parentId
+            && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+
+        if (cachedItem != null)
+        {
+            return cachedItem;
+        }
+
+        var item = await _dictionaryItemService.GetAsync(key).ConfigureAwait(false);
+
+        if (item == null)
+        {
+            return null;
+        }
+
+        if (item.ParentId != parent)
+        {
+            throw new InvalidOperationException($"Dictionary item '{key}' exists under a different parent.");
+        }
+
+        var translation = item.Translations.FirstOrDefault(x => x.LanguageIsoCode.Equals(culture, StringComparison.OrdinalIgnoreCase));
+
+        return new DictionaryItem
+        {
+            Id = item.Key,
+            Key = item.ItemKey,
+            Parent = item.ParentId ?? Guid.Empty,
+            Culture = culture,
+            Value = translation?.Value ?? string.Empty
+        };
+    }
+
+    private async Task<DictionaryItem> SetDefaultValueAsync(DictionaryItem item, string? defaultValue, string culture)
+    {
+        if (string.IsNullOrEmpty(defaultValue))
+        {
+            return item;
+        }
+
+        var dictionaryItem = await _dictionaryItemService.GetAsync(item.Id).ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"Dictionary item '{item.Key}' was not found.");
+        var translation = dictionaryItem.Translations.FirstOrDefault(x => x.LanguageIsoCode.Equals(culture, StringComparison.OrdinalIgnoreCase));
+
+        if (translation == null)
+        {
+            DictionaryCache._languages.TryGetValue(culture, out ILanguage? language);
+            language ??= (await _languageService.GetAllAsync().ConfigureAwait(false))
+                .FirstOrDefault(x => x.IsoCode.Equals(culture, StringComparison.OrdinalIgnoreCase));
+
+            if (language == null)
+            {
+                throw new InvalidOperationException($"Dictionary language '{culture}' was not found.");
+            }
+
+            dictionaryItem.Translations = dictionaryItem.Translations
+                .Append(new DictionaryTranslation(language, defaultValue))
+                .ToList();
+        }
+        else
+        {
+            translation.Value = defaultValue;
+        }
+
+        var update = await _dictionaryItemService.UpdateAsync(dictionaryItem, Guid.Empty).ConfigureAwait(false);
+
+        if (!update.Success)
+        {
+            throw new Exception($"Failed to update dictionary item. Key: {item.Key} Status: {update.Status}", update.Exception);
+        }
+
+        item.Value = defaultValue;
+        return item;
     }
 
     private async Task<DictionaryItem?> CreateDictionaryItemAsync(string key, string? defaultValue, Guid? parent, string culture)
@@ -219,7 +303,9 @@ public class DictionaryService
 
             foreach (var la in DictionaryCache._languages)
             {
-                translations.Add(new DictionaryTranslation(la.Value, defaultValue ?? ""));
+                translations.Add(new DictionaryTranslation(
+                    la.Value,
+                    la.Key.Equals(culture, StringComparison.OrdinalIgnoreCase) ? defaultValue ?? "" : ""));
             }
 
             dictItem.Translations = translations;
@@ -235,7 +321,8 @@ public class DictionaryService
                     Culture = culture,
                     Id = result.Key,
                     Key = key,
-                    Value = defaultValue ?? ""
+                    Value = defaultValue ?? "",
+                    Parent = parent ?? Guid.Empty
                 };
             }
 
