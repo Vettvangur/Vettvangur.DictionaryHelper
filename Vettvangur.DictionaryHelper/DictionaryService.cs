@@ -186,11 +186,12 @@ public class DictionaryService
         for (int i = 0; i < keys.Length; i++)
         {
             var key = keys[i];
-            item = await GetDictionaryItemAsync(key, parent, culture).ConfigureAwait(false);
+            var isFinalKey = i == keys.Length - 1;
+            item = await GetDictionaryItemAsync(key, parent, culture, allowDifferentParent: isFinalKey).ConfigureAwait(false);
 
             if (item == null)
             {
-                item = await CreateDictionaryItemAsync(key, i == keys.Length - 1 ? defaultValue : string.Empty, parent, culture).ConfigureAwait(false);
+                item = await CreateDictionaryItemAsync(key, isFinalKey ? defaultValue : string.Empty, parent, culture).ConfigureAwait(false);
             }
 
             if (item == null)
@@ -198,7 +199,7 @@ public class DictionaryService
                 return null;
             }
 
-            if (i == keys.Length - 1)
+            if (isFinalKey)
             {
                 return string.IsNullOrEmpty(item.Value)
                     ? await SetDefaultValueAsync(item, defaultValue, culture).ConfigureAwait(false)
@@ -212,7 +213,7 @@ public class DictionaryService
 
     }
 
-    private async Task<DictionaryItem?> GetDictionaryItemAsync(string key, Guid? parent, string culture)
+    private async Task<DictionaryItem?> GetDictionaryItemAsync(string key, Guid? parent, string culture, bool allowDifferentParent = false)
     {
         var parentId = parent ?? Guid.Empty;
         var cachedItem = DictionaryCache._cache.Values.FirstOrDefault(x =>
@@ -232,7 +233,7 @@ public class DictionaryService
             return null;
         }
 
-        if (item.ParentId != parent)
+        if (item.ParentId != parent && !allowDifferentParent)
         {
             throw new InvalidOperationException($"Dictionary item '{key}' exists under a different parent.");
         }
