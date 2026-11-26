@@ -50,6 +50,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="DictionaryHelper.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="Umbraco.Cms.Core" Version="17.0.2"/>
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.2"/>
