@@ -14,19 +14,52 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DictionaryHelper", "Vettvangur.DictionaryHelper\DictionaryHelper.csproj", "{00647B94-0EB4-413A-9623-5E87FC58A40C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vettvangur.DictionaryHelper.Tests", "Vettvangur.DictionaryHelper.Tests", "{41523282-E0EF-840C-B68C-26D0A03AEE8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryHelper.Tests", "Vettvangur.DictionaryHelper.Tests\DictionaryHelper.Tests.csproj", "{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Vettvangur.DictionaryHelper", "Vettvangur.DictionaryHelper", "{A5EE08B3-B353-C5FA-B2BB-658902365DA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|x64.Build.0 = Debug|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Debug|x86.Build.0 = Debug|Any CPU
 		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|x64.ActiveCfg = Release|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|x64.Build.0 = Release|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|x86.ActiveCfg = Release|Any CPU
+		{00647B94-0EB4-413A-9623-5E87FC58A40C}.Release|x86.Build.0 = Release|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Debug|x64.Build.0 = Debug|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Debug|x86.Build.0 = Debug|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Release|x64.ActiveCfg = Release|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Release|x64.Build.0 = Release|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Release|x86.ActiveCfg = Release|Any CPU
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6ACC25CD-A512-466C-9D14-7A28A0B3DE63} = {41523282-E0EF-840C-B68C-26D0A03AEE8F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11927A5B-001A-489B-A16B-E5DA15499758}

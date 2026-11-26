@@ -7,14 +7,14 @@
 
     <!-- Package properties -->
     <PackageId>Vettvangur.DictionaryHelper</PackageId>
-    <Version>5.0.0</Version>
+    <Version>5.0.2</Version>
     <Title>Vettvangur Dictionary Helper</Title>
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/17</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/17</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper</RepositoryUrl>
     <Description>Umbraco helper to fetch dictionary items for Umbraco</Description>
-    <PackageReleaseNotes>Release for Umbraco 17</PackageReleaseNotes>
+    <PackageReleaseNotes>Release for Umbraco 17 and 18</PackageReleaseNotes>
     <Copyright>Copyright 2023</Copyright>
     <PackageTags>Umbraco Dictionary</PackageTags>
 
@@ -40,19 +40,23 @@
 
   <!-- Package icon -->
   <ItemGroup>
-    <None Include="..\VV_Logo.png" Pack="true" PackagePath="images\" />
+    <None Include="..\VV_Logo.png" Pack="true" PackagePath="images\"/>
   </ItemGroup>
 
   <ItemGroup>
     <None Include="../VV_Logo.png" Pack="true" PackagePath=""/>
     <None Include="../README.md" Pack="true" PackagePath=""/>
-    <None Include="../CHANGELOG.md" Pack="true" PackagePath=""/>
+    <None Include="../Changelog.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Umbraco.Cms.Core" Version="17.0.2" />
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.2" />
+    <InternalsVisibleTo Include="DictionaryHelper.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Umbraco.Cms.Core" Version="17.0.2"/>
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.0.2"/>
   </ItemGroup>
 
 </Project>

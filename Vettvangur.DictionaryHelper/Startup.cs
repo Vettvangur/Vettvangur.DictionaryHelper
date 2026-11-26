@@ -1,10 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
-using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Sync;
+using Umbraco.Extensions;
 
 namespace DictionaryHelper;
 
@@ -22,7 +24,9 @@ class DictionaryComposer : IComposer
 
         builder
             .AddNotificationAsyncHandler<DictionaryItemSavedNotification, NotificationHandlers>()
-            .AddNotificationAsyncHandler<DictionaryItemDeletingNotification, NotificationHandlers>()
+            .AddNotificationAsyncHandler<DictionaryItemDeletedNotification, NotificationHandlers>()
+            .AddNotificationAsyncHandler<DictionaryItemMovedNotification, NotificationHandlers>()
+            .AddNotificationAsyncHandler<DictionaryCacheRefresherNotification, NotificationHandlers>()
         ;
 
         builder.Components().Append<Startup>();
@@ -54,50 +58,39 @@ class Startup : IAsyncComponent
 
 class NotificationHandlers :
     INotificationAsyncHandler<DictionaryItemSavedNotification>,
-    INotificationAsyncHandler<DictionaryItemDeletingNotification>
+    INotificationAsyncHandler<DictionaryItemDeletedNotification>,
+    INotificationAsyncHandler<DictionaryItemMovedNotification>,
+    INotificationAsyncHandler<DictionaryCacheRefresherNotification>
 {
     readonly DictionaryCache _dictionaryCache;
-    readonly IDictionaryItemService _dictionaryItemService;
-    readonly ILogger<DictionaryItemDeletingNotification> _logger;
-    public NotificationHandlers(DictionaryCache dictionaryCache, ILogger<DictionaryItemDeletingNotification> logger, IDictionaryItemService dictionaryItemService)
+    readonly DistributedCache _distributedCache;
+    readonly ILogger<NotificationHandlers> _logger;
+    public NotificationHandlers(DictionaryCache dictionaryCache, DistributedCache distributedCache, ILogger<NotificationHandlers> logger)
     {
         _dictionaryCache = dictionaryCache;
+        _distributedCache = distributedCache;
         _logger = logger;
-        _dictionaryItemService = dictionaryItemService;
     }
 
-    public async Task HandleAsync(DictionaryItemDeletingNotification notification, CancellationToken cancellationToken)
+    public Task HandleAsync(DictionaryItemDeletedNotification notification, CancellationToken cancellationToken)
     {
+        // Once the item is really gone, so a delete that something cancels keeps its texts.
+        // Umbraco deletes the descendants with it, and the cache finds them by their parents.
         try
         {
             foreach (var e in notification.DeletedEntities)
             {
-                foreach (var t in e.Translations)
-                {
-                    _dictionaryCache.Remove(e.ItemKey + "-" + t.LanguageIsoCode);
-                }
-
-                var children = await _dictionaryItemService.GetDescendantsAsync(e.Key).ConfigureAwait(false);
-
-                if (children.Any())
-                {
-                    foreach (var c in children)
-                    {
-                        foreach (var t in c.Translations)
-                        {
-                            _dictionaryCache.Remove(c.ItemKey + "-" + t.LanguageIsoCode);
-                        }
-                    }
-                }
+                DictionaryCache.RemoveItemAndDescendants(e.Key);
             }
-
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to remove dictionary from cache.");
         }
 
+        return Task.CompletedTask;
     }
+
     public async Task HandleAsync(DictionaryItemSavedNotification notification, CancellationToken cancellationToken)
     {
         foreach (var e in notification.SavedEntities)
@@ -106,6 +99,59 @@ class NotificationHandlers :
             {
                 await _dictionaryCache.AddOrUpdateAsync(e.ItemKey, t.Key, t.Value, e.ParentId, t.LanguageIsoCode).ConfigureAwait(false);
             }
+
+            // After a rename, the old name stops returning the text
+            DictionaryCache.ForgetOtherNames(e.Key, e.ItemKey);
+            DictionaryCache.RememberPk(e.Id, e.Key);
+        }
+    }
+
+    public Task HandleAsync(DictionaryItemMovedNotification notification, CancellationToken cancellationToken)
+    {
+        try
+        {
+            foreach (var move in notification.MoveInfoCollection)
+            {
+                DictionaryCache.MoveItem(move.Entity.Key, move.Entity.ParentId ?? Guid.Empty);
+            }
+
+            // Umbraco sends the other servers nothing for a move. Without this they keep the old
+            // parent, and deleting that parent later would remove the moved item from their cache
+            // too. A refresh makes every server reload the moved items from the database.
+            _distributedCache.RefreshDictionaryCache(notification.MoveInfoCollection.Select(x => x.Entity));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to move a dictionary item in the cache.");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public async Task HandleAsync(DictionaryCacheRefresherNotification notification, CancellationToken cancellationToken)
+    {
+        // Umbraco sends this to every server, this one included, when an item is saved or deleted,
+        // and the move handler above sends it for a move, so the other servers' caches follow along too.
+        try
+        {
+            switch (notification.MessageType)
+            {
+                case MessageType.RefreshById when notification.MessageObject is int pk:
+                    await _dictionaryCache.RefreshItemAsync(pk).ConfigureAwait(false);
+                    break;
+
+                case MessageType.RemoveById when notification.MessageObject is int pk:
+                    DictionaryCache.RemoveItem(pk);
+                    break;
+
+                case MessageType.RefreshAll:
+                    await _dictionaryCache.ReloadAllAsync(cancellationToken).ConfigureAwait(false);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update the dictionary cache after a change.");
         }
     }
 }
