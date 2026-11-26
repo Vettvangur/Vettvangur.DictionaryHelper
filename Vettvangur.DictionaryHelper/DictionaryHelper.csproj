@@ -11,10 +11,10 @@
     <Title>Vettvangur Dictionary Helper</Title>
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/17</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper/tree/17</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Vettvangur/Vettvangur.DictionaryHelper</RepositoryUrl>
     <Description>Umbraco helper to fetch dictionary items for Umbraco</Description>
-    <PackageReleaseNotes>Release for Umbraco 17</PackageReleaseNotes>
+    <PackageReleaseNotes>Release for Umbraco 17 and 18</PackageReleaseNotes>
     <Copyright>Copyright 2023</Copyright>
     <PackageTags>Umbraco Dictionary</PackageTags>
 
