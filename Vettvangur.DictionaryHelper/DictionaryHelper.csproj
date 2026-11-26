@@ -7,7 +7,7 @@
 
     <!-- Package properties -->
     <PackageId>Vettvangur.DictionaryHelper</PackageId>
-    <Version>5.0.2</Version>
+    <Version>5.0.3</Version>
     <Title>Vettvangur Dictionary Helper</Title>
     <Authors>Vettvangur</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -50,7 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="DictionaryHelper.Tests" />
+    <InternalsVisibleTo Include="DictionaryHelper.Tests"/>
   </ItemGroup>
 
   <ItemGroup>
