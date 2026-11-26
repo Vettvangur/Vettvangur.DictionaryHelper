@@ -42,16 +42,16 @@ public class DictionaryService
     public IEnumerable<DictionaryItem> GetChildren(string key, string culture)
     {
         // Look up the root item by key and culture
-        var rootItem = DictionaryCache._cache.Values
-            .FirstOrDefault(x => x.Key.Equals(key, StringComparison.OrdinalIgnoreCase)
-                                 && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+        var rootItem = DictionaryCache.Find(key, culture);
 
         if (rootItem == null)
             return Enumerable.Empty<DictionaryItem>();
 
         // Find and return only the direct children of the root item that match the culture
-        var children = DictionaryCache._cache.Values
-            .Where(x => x.Parent == rootItem.Id && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+        var children = DictionaryCache._cache
+            .Select(x => x.Value)
+            .Where(x => x.Parent == rootItem.Id && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase))
+            .ToList();
 
         return children;
     }
@@ -59,12 +59,17 @@ public class DictionaryService
     public IEnumerable<DictionaryItem> GetDescendants(string key, string culture)
     {
         // Look up the root item by key and culture
-        var rootItem = DictionaryCache._cache.Values
-            .FirstOrDefault(x => x.Key.Equals(key, StringComparison.OrdinalIgnoreCase)
-                                 && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+        var rootItem = DictionaryCache.Find(key, culture);
 
         if (rootItem == null)
             return Enumerable.Empty<DictionaryItem>();
+
+        // Read the cache once and group it by parent, so each level of the walk finds its
+        // children directly instead of reading the whole cache again
+        var childrenByParent = DictionaryCache._cache
+            .Select(x => x.Value)
+            .Where(x => x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase))
+            .ToLookup(x => x.Parent);
 
         // Use a queue to perform a breadth-first search for descendants
         var descendants = new List<DictionaryItem>();
@@ -77,8 +82,7 @@ public class DictionaryService
             descendants.Add(currentItem);
 
             // Find all direct children of the current item that match the culture
-            var children = DictionaryCache._cache.Values
-                .Where(x => x.Parent == currentItem.Id && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+            var children = childrenByParent[currentItem.Id];
 
             // Add children to the queue for further processing
             foreach (var child in children)
@@ -115,10 +119,7 @@ public class DictionaryService
                 ?? throw new InvalidOperationException($"Dictionary parent item '{parentKey}' was not found.");
         }
 
-        var existingItem = DictionaryCache._cache.Values.FirstOrDefault(x =>
-            x.Key.Equals(key, StringComparison.OrdinalIgnoreCase)
-            && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase)
-            && x.Parent == (parentItem?.Id ?? Guid.Empty));
+        var existingItem = DictionaryCache.Find(key, culture, parentItem?.Id ?? Guid.Empty);
 
         if (existingItem != null)
         {
@@ -216,10 +217,7 @@ public class DictionaryService
     private async Task<DictionaryItem?> GetDictionaryItemAsync(string key, Guid? parent, string culture, bool allowDifferentParent = false)
     {
         var parentId = parent ?? Guid.Empty;
-        var cachedItem = DictionaryCache._cache.Values.FirstOrDefault(x =>
-            x.Key.Equals(key, StringComparison.OrdinalIgnoreCase)
-            && x.Parent == parentId
-            && x.Culture.Equals(culture, StringComparison.OrdinalIgnoreCase));
+        var cachedItem = DictionaryCache.Find(key, culture, parentId);
 
         if (cachedItem != null)
         {
