@@ -1,6 +1,7 @@
 using DictionaryHelper.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
@@ -23,6 +24,9 @@ public sealed class CacheUpdateTests : IDisposable
     readonly DictionaryCache _cache;
     readonly NotificationHandlers _handlers;
 
+    // The ids this server asked Umbraco to refresh on every server
+    readonly List<int> _refreshedEverywhere = new();
+
     // A small tree: Global > Cart, Global > Checkout > Pay, and a root text Hello
     readonly CmsDictionary _global = Row(1, "Global", Guid.Empty);
     readonly CmsDictionary _cart;
@@ -37,17 +41,23 @@ public sealed class CacheUpdateTests : IDisposable
         var languageService = Substitute.For<ILanguageService>();
         languageService.GetAllAsync().Returns(Task.FromResult<IEnumerable<ILanguage>>(new[] { _icelandic, _english }));
         _cache = new DictionaryCache(languageService, _repository, NullLogger<DictionaryCache>.Instance);
-        _handlers = new NotificationHandlers(_cache, NullLogger<NotificationHandlers>.Instance);
+        _handlers = new NotificationHandlers(_cache, RecordingDistributedCache(_refreshedEverywhere), NullLogger<NotificationHandlers>.Instance);
 
         _cart = Row(2, "Cart", _global.id);
         _checkout = Row(3, "Checkout", _global.id);
         _pay = Row(4, "Pay", _checkout.id);
 
-        var keys = new[] { _global, _cart, _checkout, _pay, _hello };
-        DictionaryCache.Populate(keys, keys.SelectMany(Texts), new[] { _icelandic, _english });
+        FillAsAtStartup();
     }
 
     public void Dispose() => Reset();
+
+    void FillAsAtStartup()
+    {
+        Reset();
+        var keys = new[] { _global, _cart, _checkout, _pay, _hello };
+        DictionaryCache.Populate(keys, keys.SelectMany(Texts), new[] { _icelandic, _english });
+    }
 
     static void Reset()
     {
@@ -79,6 +89,36 @@ public sealed class CacheUpdateTests : IDisposable
         Assert.NotNull(DictionaryCache.Find("Cart", "en-US", _checkout.id));
         Assert.Null(DictionaryCache.Find("Cart", "is-IS", _global.id));
         Assert.Equal("Cart (is-IS)", await Service().GetValueByKeyAndCultureAsync("Global.Checkout.Cart", "is-IS", "x", create: true));
+    }
+
+    [Fact]
+    public async Task A_move_here_reaches_the_other_servers_so_deleting_the_old_parent_there_keeps_the_item()
+    {
+        // This server: an editor moves Cart out of Global to the root
+        var moved = Item(_cart, "Cart", ("is-IS", "Cart (is-IS)"));
+        moved.ParentId = null;
+
+        await _handlers.HandleAsync(new DictionaryItemMovedNotification(new MoveEventInfo<IDictionaryItem>(moved, string.Empty, Umbraco.Cms.Core.Constants.System.Root, null), new EventMessages()), default);
+
+        Assert.Equal(new[] { _cart.pk }, _refreshedEverywhere);
+
+        // Another server: its cache still has Cart under Global, and the database has Cart at the
+        // root. It gets the refresh this server sent, and then the editor deletes Global.
+        FillAsAtStartup();
+        _repository.Rows[_cart.pk] = Row(_cart.pk, "Cart", Guid.Empty, _cart.id);
+        _repository.Texts[_cart.id] = Texts(_cart).ToList();
+
+        foreach (var pk in _refreshedEverywhere)
+        {
+            await _handlers.HandleAsync(new DictionaryCacheRefresherNotification(pk, MessageType.RefreshById), default);
+        }
+
+        await _handlers.HandleAsync(new DictionaryCacheRefresherNotification(_global.pk, MessageType.RemoveById), default);
+
+        Assert.Equal("Cart (is-IS)", DictionaryCache.Find("Cart", "is-IS", Guid.Empty)?.Value);
+        Assert.Equal("Cart (en-US)", DictionaryCache.Find("Cart", "en-US", Guid.Empty)?.Value);
+        Assert.False(Service().KeyExist("Global"));
+        Assert.False(Service().KeyExist("Pay"));
     }
 
     [Fact]
@@ -155,6 +195,23 @@ public sealed class CacheUpdateTests : IDisposable
     }
 
     static DictionaryService Service() => new(Substitute.For<IDictionaryItemService>(), Substitute.For<ILanguageService>());
+
+    /// <summary>
+    /// Umbraco's distributed cache with a messenger that sends nothing anywhere, but records the
+    /// dictionary ids it was asked to refresh on every server.
+    /// </summary>
+    static DistributedCache RecordingDistributedCache(List<int> refreshed)
+    {
+        var refresher = Substitute.For<ICacheRefresher>();
+        refresher.RefresherUniqueId.Returns(DictionaryCacheRefresher.UniqueId);
+
+        var messenger = Substitute.For<IServerMessenger>();
+        messenger
+            .When(x => x.QueueRefresh(Arg.Is<ICacheRefresher>(r => r.RefresherUniqueId == DictionaryCacheRefresher.UniqueId), Arg.Any<int[]>()))
+            .Do(call => refreshed.AddRange(call.ArgAt<int[]>(1)));
+
+        return new DistributedCache(messenger, new CacheRefresherCollection(() => new[] { refresher }));
+    }
 
     static ILanguage Language(int id, string isoCode)
     {

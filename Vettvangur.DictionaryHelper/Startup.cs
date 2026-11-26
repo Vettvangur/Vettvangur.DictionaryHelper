@@ -1,10 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Sync;
+using Umbraco.Extensions;
 
 namespace DictionaryHelper;
 
@@ -61,10 +63,12 @@ class NotificationHandlers :
     INotificationAsyncHandler<DictionaryCacheRefresherNotification>
 {
     readonly DictionaryCache _dictionaryCache;
+    readonly DistributedCache _distributedCache;
     readonly ILogger<NotificationHandlers> _logger;
-    public NotificationHandlers(DictionaryCache dictionaryCache, ILogger<NotificationHandlers> logger)
+    public NotificationHandlers(DictionaryCache dictionaryCache, DistributedCache distributedCache, ILogger<NotificationHandlers> logger)
     {
         _dictionaryCache = dictionaryCache;
+        _distributedCache = distributedCache;
         _logger = logger;
     }
 
@@ -104,13 +108,17 @@ class NotificationHandlers :
 
     public Task HandleAsync(DictionaryItemMovedNotification notification, CancellationToken cancellationToken)
     {
-        // Only this server hears about a move: Umbraco sends the other servers nothing for it.
         try
         {
             foreach (var move in notification.MoveInfoCollection)
             {
                 DictionaryCache.MoveItem(move.Entity.Key, move.Entity.ParentId ?? Guid.Empty);
             }
+
+            // Umbraco sends the other servers nothing for a move. Without this they keep the old
+            // parent, and deleting that parent later would remove the moved item from their cache
+            // too. A refresh makes every server reload the moved items from the database.
+            _distributedCache.RefreshDictionaryCache(notification.MoveInfoCollection.Select(x => x.Entity));
         }
         catch (Exception ex)
         {
@@ -123,7 +131,7 @@ class NotificationHandlers :
     public async Task HandleAsync(DictionaryCacheRefresherNotification notification, CancellationToken cancellationToken)
     {
         // Umbraco sends this to every server, this one included, when an item is saved or deleted,
-        // so the other servers' caches follow along too.
+        // and the move handler above sends it for a move, so the other servers' caches follow along too.
         try
         {
             switch (notification.MessageType)
